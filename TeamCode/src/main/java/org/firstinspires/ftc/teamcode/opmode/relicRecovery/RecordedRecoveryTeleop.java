@@ -28,7 +28,7 @@ public class RecordedRecoveryTeleop extends RelicRecoveryManual {
     public static class RecordedRecoveryTeleopRedCenter extends RecordedRecoveryTeleop {
         @Override public void init() {
             filename = getStartPositionName(Color.Ftc.RED,
-                                            RobotHardware.StartPosition.FIELD_CENTER);
+                                            StartPosition.FIELD_CENTER);
             super.init();
         }
     }
@@ -37,7 +37,7 @@ public class RecordedRecoveryTeleop extends RelicRecoveryManual {
     public static class RecordedRecoveryTeleopRedCorner extends RecordedRecoveryTeleop {
         @Override public void init() {
             filename = getStartPositionName(Color.Ftc.RED,
-                                            RobotHardware.StartPosition.FIELD_CORNER);
+                                            StartPosition.FIELD_CORNER);
             super.init();
         }
     }
@@ -46,7 +46,7 @@ public class RecordedRecoveryTeleop extends RelicRecoveryManual {
     public static class RecordedRecoveryTeleopBlueCenter extends RecordedRecoveryTeleop {
         @Override public void init() {
             filename = getStartPositionName(Color.Ftc.BLUE,
-                                            RobotHardware.StartPosition.FIELD_CENTER);
+                                            StartPosition.FIELD_CENTER);
             super.init();
         }
     }
@@ -55,7 +55,7 @@ public class RecordedRecoveryTeleop extends RelicRecoveryManual {
     public static class RecordedRecoveryTeleopBlueCorner extends RecordedRecoveryTeleop {
         @Override public void init() {
             filename = getStartPositionName(Color.Ftc.BLUE,
-                                            RobotHardware.StartPosition.FIELD_CORNER);
+                                            StartPosition.FIELD_CORNER);
             super.init();
         }
     }
@@ -89,10 +89,10 @@ public class RecordedRecoveryTeleop extends RelicRecoveryManual {
         telemetry.addData("Elapsed", elapsed);
 
         try {
-            for (RobotHardware.MotorName m : RobotHardware.MotorName.values()) {
-                recorder.record(m.name(), elapsed);
+            for (RelicMotorName m : RelicMotorName.values()) {
+                recorder.record(m.getName(), elapsed);
             }
-            for (RobotHardware.ServoName s : RobotHardware.ServoName.values()) {
+            for (RelicServoName s : RelicServoName.values()) {
                 recorder.record(s.name(), elapsed);
             }
         } catch (Exception e) {

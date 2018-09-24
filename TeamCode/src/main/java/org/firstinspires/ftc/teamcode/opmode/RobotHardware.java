@@ -172,18 +172,7 @@ public abstract class RobotHardware extends OpMode {
     }
 
 
-    // Possible starting positions.
-    protected enum StartPosition {
-        //Field Positions
-        //One Latched
-        //One on the ground
-        //The other ground place
-    }
 
-    // Returns a string representation of the starting position.
-    protected String getStartPositionName(Color.Ftc c, StartPosition p) {
-        return c.name() + "-" + p.name();
-    }
 
     /**
      * Initialize the hardware handles.

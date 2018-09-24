@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.relicRecovery;
 
 import org.firstinspires.ftc.teamcode.R;
+import org.firstinspires.ftc.teamcode.base.Color;
 import org.firstinspires.ftc.teamcode.control.Mecanum;
 import org.firstinspires.ftc.teamcode.opmode.RobotHardware;
 
@@ -183,5 +184,18 @@ public abstract class RelicRobotHardware extends RobotHardware {
             names.add(name.getServoName());
         }
         return names;
+    }
+    // Possible starting positions.
+    protected enum StartPosition {
+        FIELD_CENTER, FIELD_CORNER
+        //Field Positions
+        //One Latched
+        //One on the ground
+        //The other ground place
+    }
+
+    // Returns a string representation of the starting position.
+    protected String getStartPositionName(Color.Ftc c, StartPosition p) {
+        return c.name() + "-" + p.name();
     }
 }
