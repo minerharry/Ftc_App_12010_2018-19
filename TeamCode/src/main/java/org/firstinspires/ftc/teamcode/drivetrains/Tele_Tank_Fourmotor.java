@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 //import com.qualcomm.hardware.motors.NeveRest40Gearmotor;
 
-@TeleOp(name="Iterative OpMode", group="Iterative Opmode")
+@TeleOp(name="Tank_Drive_Fourmotor", group="Iterative Opmode")
 public class Tele_Tank_Fourmotor extends OpMode{
 
     private DcMotor leftFrontMotor = null;
@@ -32,8 +32,8 @@ telemetry.addData("Yeehaw", 1);
 @Override
     public void loop()
     {
-leftPower = gamepad1.left_stick_y;
-rightPower = gamepad1.right_stick_y;
+leftPower = -gamepad1.left_stick_y;
+rightPower = -gamepad1.right_stick_y;
 
 leftFrontMotor.setPower(leftPower);
 leftBackMotor.setPower(leftPower);
