@@ -2,5 +2,67 @@ package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
 import org.firstinspires.ftc.teamcode.opmode.RobotHardware;
 
+import java.util.ArrayList;
+
 public abstract class RuckusRobotHardware extends RobotHardware {
+    public enum RuckusMotorName{
+        DRIVE_FRONT_LEFT ("Drive_Front_Left"),
+        DRIVE_FRONT_RIGHT ("Drive_Front_Right"),
+        DRIVE_BACK_LEFT ("Drive_Back_Left"),
+        DRIVE_BACK_RIGHT ("Drive_Back_Right");
+
+        private String myName;
+        private MotorName myMotorName;
+        RuckusMotorName(String name) {
+            myName = name;
+            myMotorName = new RobotHardware.MotorName(name);
+        }
+        String getName()
+        {
+            return myName;
+        }
+        MotorName getMotorName()
+        {
+            return myMotorName;
+        }
+
+    }
+    public enum RuckusServoName
+    {
+        J("3");
+        private String myName;
+        private ServoName myServoName;
+        RuckusServoName(String name)
+        {
+            myName = name;
+            myServoName = new RobotHardware.ServoName(name);
+        }
+        String getName()
+        {
+            return myName;
+        }
+        ServoName getServoName()
+        {
+            return myServoName;
+        }
+    }
+    @Override
+    public ArrayList<MotorName> getMotors() {
+        ArrayList<MotorName> names = new ArrayList<MotorName>();
+        for(RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values())
+        {
+            names.add(name.getMotorName());
+        }
+        return names;
+    }
+
+    @Override
+    public ArrayList<ServoName> getServos() {
+        ArrayList<ServoName> names = new ArrayList<ServoName>();
+        for(RuckusRobotHardware.RuckusServoName name : RuckusRobotHardware.RuckusServoName.values())
+        {
+            names.add(name.getServoName());
+        }
+        return names;
+    }
 }
