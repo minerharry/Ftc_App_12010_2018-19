@@ -1,4 +1,6 @@
-package com.disnodeteam.dogecv.scoring;
+package org.firstinspires.ftc.teamcode.vision.dogeCVmodifications;
+
+import com.disnodeteam.dogecv.scoring.DogeCVScorer;
 
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;

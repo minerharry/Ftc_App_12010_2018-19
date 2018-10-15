@@ -1,4 +1,4 @@
-package com.disnodeteam.dogecv.detectors.roverrukus;
+package org.firstinspires.ftc.teamcode.vision.dogeCVmodifications;
 
 import android.util.Log;
 
@@ -9,7 +9,6 @@ import com.disnodeteam.dogecv.filters.HSVRangeFilter;
 import com.disnodeteam.dogecv.scoring.MaxAreaScorer;
 import com.disnodeteam.dogecv.scoring.PerfectAreaScorer;
 import com.disnodeteam.dogecv.scoring.RatioScorer;
-import com.disnodeteam.dogecv.scoring.RoundnessScorer;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
