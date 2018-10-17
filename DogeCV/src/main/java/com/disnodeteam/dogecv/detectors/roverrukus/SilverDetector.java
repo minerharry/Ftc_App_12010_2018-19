@@ -83,7 +83,7 @@ public class SilverDetector extends DogeCVDetector {
 
         // Loop through the contours and score them, searching for the best result
         for(MatOfPoint cont : contoursYellow){
-            double score = calculateScore(cont); // Get the diffrence score using the scoring API
+            double score = calculateScore(cont); // Get the diffrence score using the scoring APIf
 
             // Get bounding rect of contour
             Rect rect = Imgproc.boundingRect(cont);

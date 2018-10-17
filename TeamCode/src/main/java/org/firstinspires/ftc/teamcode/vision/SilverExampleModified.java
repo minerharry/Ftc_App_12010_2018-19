@@ -31,26 +31,37 @@ package org.firstinspires.ftc.teamcode.vision;
 
 import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
-import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 import com.disnodeteam.dogecv.detectors.roverrukus.SilverDetector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.vision.dogeCVmodifications.SilverDetectorModified;
 import org.opencv.core.Size;
 
 
-@TeleOp(name="Silver Example", group="DogeCV")
+@TeleOp(name="Silver Example Modified", group="DogeCV")
 
-public class SilverExample extends OpMode
+public class SilverExampleModified extends OpMode
 {
-    private SilverDetector detector;
+    private SilverDetectorModified detector;
+    private static SilverExampleModified instance;
+
+    public static void display(String item)
+    {
+        instance.displayInstantiable(item);
+    }
+    public void displayInstantiable(String item)
+    {
+        telemetry.addData("External", item);
+    }
 
 
     @Override
     public void init() {
+        instance = this;
         telemetry.addData("Status", "DogeCV 2018.0 - Gold SilverDetector Example");
 
-        detector = new SilverDetector();
+        detector = new SilverDetectorModified();
         detector.setAdjustedSize(new Size(480, 270));
         detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
         detector.useDefaults();
@@ -65,6 +76,8 @@ public class SilverExample extends OpMode
         detector.ratioScorer.weight = 5;
         detector.ratioScorer.perfectRatio = 1.0;
         detector.enable();
+        telemetry.addData("Status", "DogeCV 2018.0 - Gold SilverDetector Example Initialized");
+
 
 
     }
