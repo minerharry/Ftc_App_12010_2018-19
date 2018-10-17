@@ -30,7 +30,9 @@ public class HoughSilverDetector extends DogeCVDetector {
     public DogeCVScorer stdDevScorer = new ColorDevScorer();
 
     public double sensitivity = 1.4; //Sensitivity of circle detector; between about 1.2 and 2.1;
-    public double minDistance = 60; //Adjust with frame size! This is the minimum distance between circles
+    public double minDistance = 30; //Adjust with frame size! This is the minimum distance between circles
+    public boolean allCircles = false;
+    public ArrayList<Circle> circleArray = new ArrayList<Circle>();
 
     private Mat workingMat = new Mat(); //The working mat used for internal calculations, single object to avoid memory leak
     private Mat displayMat = new Mat(); //The matrix to be displayed
@@ -70,6 +72,7 @@ public class HoughSilverDetector extends DogeCVDetector {
         Circle bestCircle = null; //Resets the best detected circle
         double bestDifference = Double.MAX_VALUE; //The worst possible image variance
 
+        circleArray = new ArrayList<Circle>();
         //Iterates over each circle, scoring it in and checking if its better than the previous
         for (int i = 0; i < circles.width(); i++) {
             Circle circle = new Circle(circles.get(0,i)[0],circles.get(0,i)[1],circles.get(0,i)[2]); //Retrieves circle object from matrix
@@ -89,6 +92,11 @@ public class HoughSilverDetector extends DogeCVDetector {
                 bestDifference = score;
                 bestCircle = circle;
             }
+
+            if (allCircles)
+            {
+                circleArray.add(circle);
+            }
         }
         //Draws a red circle around the best circle, if one is detected at all
         if(bestCircle != null){
@@ -99,6 +107,13 @@ public class HoughSilverDetector extends DogeCVDetector {
         }else{
             isFound = false;
             foundCircle = null;
+        }
+        if (allCircles)
+        {
+            for(Circle circle : circleArray)
+            {
+                Imgproc.circle(displayMat, new Point(circle.x,circle.y), (int) circle.radius, new Scalar(0,255,0), 2);
+            }
         }
         //The ActivityViewDisplay accepts RGBA images, so converts to that format
         Imgproc.cvtColor(displayMat, displayMat, Imgproc.COLOR_RGB2RGBA);
