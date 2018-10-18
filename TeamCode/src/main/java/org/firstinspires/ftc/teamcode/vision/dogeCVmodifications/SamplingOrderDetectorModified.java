@@ -10,6 +10,7 @@ import com.disnodeteam.dogecv.scoring.MaxAreaScorer;
 import com.disnodeteam.dogecv.scoring.PerfectAreaScorer;
 import com.disnodeteam.dogecv.scoring.RatioScorer;
 
+import org.firstinspires.ftc.teamcode.vision.SamplingOrderExampleModified;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -296,9 +297,10 @@ public class SamplingOrderDetectorModified extends DogeCVDetector {
     }
 
     public double calculateSilverScore(Mat input) {
-        double totalScore = super.calculateScore(input);
+        double totalScore = calculateScore(input);
+        SamplingOrderExampleModified.display("Started Calculate Roundness");
         totalScore += roundnessScorer.calculateScore(input);
-
+        SamplingOrderExampleModified.display("Roundness Calculation complete");
         return totalScore;
     }
 }

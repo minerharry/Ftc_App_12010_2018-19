@@ -43,10 +43,21 @@ import org.firstinspires.ftc.teamcode.vision.dogeCVmodifications.SamplingOrderDe
 public class SamplingOrderExampleModified extends OpMode
 {
     private SamplingOrderDetectorModified detector;
+    private static SamplingOrderExampleModified instance;
+
+    public static void display(String item)
+    {
+        instance.displayInstantiable(item);
+    }
+    public void displayInstantiable(String item)
+    {
+        telemetry.addData("External", item);
+    }
 
 
     @Override
     public void init() {
+        instance = this;
         telemetry.addData("Status", "DogeCV 2018.0 - Sampling Order Example");
 
         detector = new SamplingOrderDetectorModified();
