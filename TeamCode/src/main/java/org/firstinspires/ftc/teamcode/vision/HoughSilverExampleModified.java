@@ -53,7 +53,7 @@ public class HoughSilverExampleModified extends OpMode
         detector.downscale = 1; //Increase detector sensitivity with smaller size. Make sure to preserve aspect ratio.
         detector.useFixedDownscale = false;
         detector.sensitivity = 1.4; //Play with this based on your camera
-        detector.minDistance = 20; //Minimum distance between silver mineral centers in pixels
+        detector.minDistance = 100; //Minimum distance between silver mineral centers in pixels
         detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
         detector.useDefaults();
         // Optional Tuning
