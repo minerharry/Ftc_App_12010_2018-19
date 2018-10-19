@@ -37,7 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.vision.dogeCVmodifications.HoughSilverDetectorModified;
 
 
-@TeleOp(name="Hough Silver Example", group="DogeCV")
+@TeleOp(name="Hough Silver Example Modified", group="DogeCV")
 
 public class HoughSilverExampleModified extends OpMode
 {
