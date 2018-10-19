@@ -44,11 +44,15 @@ import org.opencv.core.Size;
 public class SilverExampleModified extends OpMode
 {
     private SilverDetectorModified detector;
-    private static SilverExampleModified instance;
+    private static SilverExampleModified instance = null ;
 
     public static void display(String item)
     {
-        instance.displayInstantiable(item);
+
+        if (instance != null)
+            instance.displayInstantiable(item);
+        else
+            SamplingOrderExampleModified.display(item);
     }
     public void displayInstantiable(String item)
     {

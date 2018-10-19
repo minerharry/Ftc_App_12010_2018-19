@@ -15,6 +15,7 @@ public class Tele_Tank_Fourmotor extends OpMode{
     private DcMotor rightBackMotor = null;
     double leftPower;
     double rightPower;
+    private double turnLimiter = 0.6; //the minimum limiting value for when limiting turning
 
     @Override
     public void init()
@@ -32,8 +33,13 @@ telemetry.addData("Yeehaw", 1);
 @Override
     public void loop()
     {
-leftPower = -gamepad1.left_stick_y;
-rightPower = -gamepad1.right_stick_y;
+leftPower = gamepad1.left_stick_y;
+rightPower = gamepad1.right_stick_y;
+
+double percentDiff = Math.abs((leftPower-rightPower)/Math.max(leftPower,rightPower));
+double percentLimiter = (1-turnLimiter)/2 * percentDiff;
+leftPower *= percentLimiter;
+rightPower *= percentDiff;
 
 leftFrontMotor.setPower(leftPower);
 leftBackMotor.setPower(leftPower);
