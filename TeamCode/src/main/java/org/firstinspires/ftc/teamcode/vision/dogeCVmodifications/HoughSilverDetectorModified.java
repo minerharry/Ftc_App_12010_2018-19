@@ -66,6 +66,7 @@ public class HoughSilverDetectorModified extends DogeCVDetector {
 
         Mat circles = new Mat(); //A matrix of circles; each entry is an array of doubles, first coordinate is the x of the circle, second is y, third is the radius.
         Imgproc.HoughCircles(channels.get(0), circles, Imgproc.CV_HOUGH_GRADIENT, sensitivity, minDistance); //Applies the Hough Circular transformation to find circles in the image
+        displayMat = channels.get(0);
 
         results = 0; //The number of detected circles
         Circle bestCircle = null; //Resets the best detected circle
@@ -116,7 +117,7 @@ public class HoughSilverDetectorModified extends DogeCVDetector {
         }
         //The ActivityViewDisplay accepts RGBA images, so converts to that format
         Imgproc.cvtColor(displayMat, displayMat, Imgproc.COLOR_RGB2RGBA);
-        return channels.get(0);
+        return displayMat;
     }
 
     @Override
