@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <string name="backLeft">Motor_Back_Left</string>
+    <string name="backRight">Motor_Back_Right</string>
 </resources>
