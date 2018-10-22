@@ -1,12 +1,16 @@
 package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
+import android.content.res.Resources;
+
 import org.firstinspires.ftc.teamcode.opmode.RobotHardware;
+import org.firstinspires.ftc.teamcode.R;
+
 
 import java.util.ArrayList;
 
 public abstract class RuckusRobotHardware extends RobotHardware {
     public enum RuckusMotorName{
-        DRIVE_FRONT_LEFT ("Drive_Front_Left"),
+        DRIVE_FRONT_LEFT (getResourceString(R.string.backLeft)),
         DRIVE_FRONT_RIGHT ("Drive_Front_Right"),
         DRIVE_BACK_LEFT ("Drive_Back_Left"),
         DRIVE_BACK_RIGHT ("Drive_Back_Right");

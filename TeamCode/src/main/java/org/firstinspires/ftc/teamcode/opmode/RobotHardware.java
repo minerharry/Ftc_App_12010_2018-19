@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import android.content.res.Resources;
 import android.util.TypedValue;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -27,19 +28,19 @@ public abstract class RobotHardware extends OpMode {
     private static double countsPerInch;
 
     // Get constant from resource file.
-    protected int getResourceInt(int id) {
-        return hardwareMap.appContext.getResources().getInteger(id);
+    protected static int getResourceInt(int id) {
+        return Resources.getSystem().getInteger(id);
     }
 
     // Get constant from resource file.
-    protected double getResourceDouble(int id) {
+    protected static double getResourceDouble(int id) {
         TypedValue outValue = new TypedValue();
-        hardwareMap.appContext.getResources().getValue(id, outValue, true);
+        Resources.getSystem().getValue(id, outValue, true);
         return outValue.getFloat();
     }
 
-    String getResourceString(int id) {
-        return hardwareMap.appContext.getResources().getString(id);
+    protected static String getResourceString(int id) {
+        return Resources.getSystem().getString(id);
     }
 
     public static class MotorName {

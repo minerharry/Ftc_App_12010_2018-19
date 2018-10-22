@@ -18,10 +18,7 @@ public abstract class AutonomousRobotHardware extends RobotHardware {
     // All color sensors on the robot, in order of ColorSensorName.
     private ArrayList<ColorSensor> allColorSensors;
 
-    @Override
-    String getResourceString(int id) {
-        return super.getResourceString(id);
-    }
+
 
     /**
      * Enables the use of Vuforia
