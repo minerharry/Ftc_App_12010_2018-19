@@ -2,4 +2,9 @@
 <resources>
     <string name="backLeft">Motor_Back_Left</string>
     <string name="backRight">Motor_Back_Right</string>
+    <string name="frontLeft">Motor_Front_Left</string>
+    <string name="frontRight">Motor_Front_Right</string>
+    <string name="winchMotorMain">Motor_Wench_Main</string>
+    <string name="winchMotorArm">Motor_Wench_Arm</string>
+
 </resources>

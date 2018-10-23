@@ -11,10 +11,11 @@ import java.util.ArrayList;
 public abstract class RuckusRobotHardware extends RobotHardware {
     public enum RuckusMotorName{
         DRIVE_FRONT_LEFT (getResourceString(R.string.backLeft)),
-        DRIVE_FRONT_RIGHT ("Drive_Front_Right"),
-        DRIVE_BACK_LEFT ("Drive_Back_Left"),
-        DRIVE_BACK_RIGHT ("Drive_Back_Right");
-
+        DRIVE_FRONT_RIGHT (getResourceString(R.string.backRight)),
+        DRIVE_BACK_LEFT (getResourceString(R.string.frontLeft)),
+        DRIVE_BACK_RIGHT (getResourceString(R.string.frontRight)),
+        WINCH_MAIN(getResourceString(R.string.winchMotorMain)),
+        WINCH_ARM(getResourceString(R.string.winchMotorArm));
 
         private String myName;
         private MotorName myMotorName;
