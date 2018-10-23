@@ -15,6 +15,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         DRIVE_BACK_LEFT ("Drive_Back_Left"),
         DRIVE_BACK_RIGHT ("Drive_Back_Right");
 
+
         private String myName;
         private MotorName myMotorName;
         RuckusMotorName(String name) {
@@ -52,6 +53,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     }
     @Override
     public ArrayList<MotorName> getMotors() {
+        RuckusMotorName.
         ArrayList<MotorName> names = new ArrayList<MotorName>();
         for(RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values())
         {

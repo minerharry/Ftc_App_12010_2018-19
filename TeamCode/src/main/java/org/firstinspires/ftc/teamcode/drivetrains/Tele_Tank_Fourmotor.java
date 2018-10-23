@@ -36,10 +36,10 @@ telemetry.addData("Yeehaw", 1);
 leftPower = gamepad1.left_stick_y;
 rightPower = gamepad1.right_stick_y;
 
-double percentDiff = Math.abs((leftPower-rightPower)/Math.max(leftPower,rightPower));
-double percentLimiter = (1-turnLimiter)/2 * percentDiff;
+double percentDiff = Math.abs(leftPower-rightPower);
+double percentLimiter = 1 - ((1-turnLimiter)/2 * percentDiff);
 leftPower *= percentLimiter;
-rightPower *= percentDiff;
+rightPower *= percentLimiter;
 
 leftFrontMotor.setPower(leftPower);
 leftBackMotor.setPower(leftPower);
