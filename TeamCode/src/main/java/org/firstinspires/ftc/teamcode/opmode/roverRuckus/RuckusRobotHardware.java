@@ -53,7 +53,6 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     }
     @Override
     public ArrayList<MotorName> getMotors() {
-        RuckusMotorName.
         ArrayList<MotorName> names = new ArrayList<MotorName>();
         for(RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values())
         {
