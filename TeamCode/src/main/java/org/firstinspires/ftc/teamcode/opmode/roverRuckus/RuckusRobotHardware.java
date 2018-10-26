@@ -56,9 +56,15 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     @Override
     public ArrayList<MotorName> getMotors() {
+<<<<<<< HEAD
         RuckusMotorName.
                 ArrayList<MotorName> names = new ArrayList<MotorName>();
         for (RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values()) {
+=======
+        ArrayList<MotorName> names = new ArrayList<MotorName>();
+        for(RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values())
+        {
+>>>>>>> e98cec412e75aed7434e8a2dbd9d86208d33bc4e
             names.add(name.getMotorName());
         }
         return names;
@@ -72,6 +78,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         }
         return names;
     }
+<<<<<<< HEAD
 
     protected void setDriveForTank(double left, double right)
     {setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
@@ -79,4 +86,11 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
     setPower(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), right);
     }
+=======
+    public void blah()
+    {
+        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), 1.0);
+    }
+
+>>>>>>> e98cec412e75aed7434e8a2dbd9d86208d33bc4e
 }
