@@ -28,18 +28,18 @@ public abstract class RobotHardware extends OpMode {
     private static double countsPerInch;
 
     // Get constant from resource file.
-    protected static int getResourceInt(int id) {
+    protected int getResourceInt(int id) {
         return Resources.getSystem().getInteger(id);
     }
 
     // Get constant from resource file.
-    protected static double getResourceDouble(int id) {
+    protected double getResourceDouble(int id) {
         TypedValue outValue = new TypedValue();
         Resources.getSystem().getValue(id, outValue, true);
         return outValue.getFloat();
     }
 
-    protected static String getResourceString(int id) {
+    protected String getResourceString(int id) {
         return Resources.getSystem().getString(id);
     }
 
