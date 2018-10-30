@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.R;
 import java.util.ArrayList;
 
 public abstract class RuckusRobotHardware extends RobotHardware {
-<<<<<<< HEAD
     public enum RuckusMotorName{
 <<<<<<< HEAD
         DRIVE_FRONT_LEFT (R.string.backLeft),
@@ -18,6 +17,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         DRIVE_BACK_RIGHT (R.string.frontRight),
         WINCH_MAIN(R.string.winchMotorMain),
         WINCH_ARM(R.string.winchMotorArm);
+<<<<<<< HEAD
 =======
     public enum RuckusMotorName {
         DRIVE_FRONT_LEFT(getResourceString(R.string.backLeft)),
@@ -35,11 +35,16 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         WINCH_MAIN(getResourceString(R.string.winchMotorMain)),
         WINCH_ARM(getResourceString(R.string.winchMotorArm));
 >>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
+=======
+>>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
 
         private String myName;
         private MotorName myMotorName;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
         RuckusMotorName(int nameID) {
             myNameID = nameID;
 
@@ -73,6 +78,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
                 throw new NullPointerException("Error: " + this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
 
+<<<<<<< HEAD
 =======
 
         RuckusMotorName(String name) {
@@ -88,11 +94,12 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 >>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
 =======
 >>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
+=======
+>>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
             return myMotorName;
         }
 
     }
-<<<<<<< HEAD
     public enum RuckusServoName
     {
         J("3");
@@ -110,6 +117,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             {
                 throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
+<<<<<<< HEAD
 =======
 
     public enum RuckusServoName {
@@ -126,9 +134,10 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 >>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
 =======
 >>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
+=======
+>>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
             return myName;
         }
-<<<<<<< HEAD
         ServoName getServoName()
         {
 <<<<<<< HEAD
@@ -136,27 +145,23 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             {
                 throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
+<<<<<<< HEAD
 =======
 
         ServoName getServoName() {
 >>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
 =======
 >>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
+=======
+>>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
             return myServoName;
         }
     }
-
     @Override
     public ArrayList<MotorName> getMotors() {
-<<<<<<< HEAD
-        RuckusMotorName.
-                ArrayList<MotorName> names = new ArrayList<MotorName>();
-        for (RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values()) {
-=======
         ArrayList<MotorName> names = new ArrayList<MotorName>();
         for(RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values())
         {
->>>>>>> e98cec412e75aed7434e8a2dbd9d86208d33bc4e
             names.add(name.getMotorName());
         }
         return names;
@@ -165,13 +170,17 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     @Override
     public ArrayList<ServoName> getServos() {
         ArrayList<ServoName> names = new ArrayList<ServoName>();
-        for (RuckusRobotHardware.RuckusServoName name : RuckusRobotHardware.RuckusServoName.values()) {
+        for(RuckusRobotHardware.RuckusServoName name : RuckusRobotHardware.RuckusServoName.values())
+        {
             names.add(name.getServoName());
         }
         return names;
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
 
     @Override
     public void init() {
@@ -180,6 +189,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
         super.init();
     }
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 
@@ -204,4 +214,6 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     }
 
 >>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
+=======
+>>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
 }
