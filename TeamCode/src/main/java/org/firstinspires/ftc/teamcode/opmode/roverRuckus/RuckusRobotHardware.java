@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
 import android.content.res.Resources;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.teamcode.opmode.RobotHardware;
 import org.firstinspires.ftc.teamcode.R;
 
@@ -13,6 +11,7 @@ import java.util.ArrayList;
 public abstract class RuckusRobotHardware extends RobotHardware {
 <<<<<<< HEAD
     public enum RuckusMotorName{
+<<<<<<< HEAD
         DRIVE_FRONT_LEFT (R.string.backLeft),
         DRIVE_FRONT_RIGHT (R.string.backRight),
         DRIVE_BACK_LEFT (R.string.frontLeft),
@@ -28,10 +27,18 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         WINCH_MAIN(getResourceString(R.string.winchMotorMain)),
         WINCH_ARM(getResourceString(R.string.winchMotorArm));
 >>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
+=======
+        DRIVE_FRONT_LEFT (getResourceString(R.string.backLeft)),
+        DRIVE_FRONT_RIGHT (getResourceString(R.string.backRight)),
+        DRIVE_BACK_LEFT (getResourceString(R.string.frontLeft)),
+        DRIVE_BACK_RIGHT (getResourceString(R.string.frontRight)),
+        WINCH_MAIN(getResourceString(R.string.winchMotorMain)),
+        WINCH_ARM(getResourceString(R.string.winchMotorArm));
+>>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
 
-        private int myNameID;
         private String myName;
         private MotorName myMotorName;
+<<<<<<< HEAD
 <<<<<<< HEAD
         RuckusMotorName(int nameID) {
             myNameID = nameID;
@@ -48,19 +55,19 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             {
                 name.initRobot(map);
             }
+=======
+        RuckusMotorName(String name) {
+            myName = name;
+            myMotorName = new RobotHardware.MotorName(name);
+>>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
         }
-
-
         String getName()
         {
-            if(myName == null)
-            {
-                throw new NullPointerException("Error: " + this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
-            }
             return myName;
         }
         MotorName getMotorName()
         {
+<<<<<<< HEAD
             if(myName == null)
             {
                 throw new NullPointerException("Error: " + this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
@@ -79,6 +86,8 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
         MotorName getMotorName() {
 >>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
+=======
+>>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
             return myMotorName;
         }
 
@@ -86,20 +95,17 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 <<<<<<< HEAD
     public enum RuckusServoName
     {
-        J(R.string.intakeServoLeft);
-        private int myNameID;
+        J("3");
         private String myName;
         private ServoName myServoName;
-        RuckusServoName(int nameID)
+        RuckusServoName(String name)
         {
-            myNameID = nameID;
-        }
-        public void initRobot(HardwareMap map) {
-            myName = map.appContext.getResources().getString(myNameID);
-            myServoName = new ServoName(myName);
+            myName = name;
+            myServoName = new RobotHardware.ServoName(name);
         }
         String getName()
         {
+<<<<<<< HEAD
             if(myName == null)
             {
                 throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
@@ -118,12 +124,14 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
         String getName() {
 >>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
+=======
+>>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
             return myName;
-
         }
 <<<<<<< HEAD
         ServoName getServoName()
         {
+<<<<<<< HEAD
             if(myName == null)
             {
                 throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
@@ -132,15 +140,9 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
         ServoName getServoName() {
 >>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
+=======
+>>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
             return myServoName;
-
-        }
-        public static void initRobotServos(HardwareMap map)
-        {
-            for(RuckusServoName name : RuckusServoName.values())
-            {
-                name.initRobot(map);
-            }
         }
     }
 
@@ -169,6 +171,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         return names;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     @Override
     public void init() {
@@ -194,4 +197,11 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
 >>>>>>> e98cec412e75aed7434e8a2dbd9d86208d33bc4e
 >>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
+=======
+    public void blah()
+    {
+        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), 1.0);
+    }
+
+>>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
 }
