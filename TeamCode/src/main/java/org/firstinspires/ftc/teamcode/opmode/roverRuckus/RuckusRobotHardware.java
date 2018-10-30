@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.R;
 import java.util.ArrayList;
 
 public abstract class RuckusRobotHardware extends RobotHardware {
+<<<<<<< HEAD
     public enum RuckusMotorName{
         DRIVE_FRONT_LEFT (R.string.backLeft),
         DRIVE_FRONT_RIGHT (R.string.backRight),
@@ -18,10 +19,20 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         DRIVE_BACK_RIGHT (R.string.frontRight),
         WINCH_MAIN(R.string.winchMotorMain),
         WINCH_ARM(R.string.winchMotorArm);
+=======
+    public enum RuckusMotorName {
+        DRIVE_FRONT_LEFT(getResourceString(R.string.backLeft)),
+        DRIVE_FRONT_RIGHT(getResourceString(R.string.backRight)),
+        DRIVE_BACK_LEFT(getResourceString(R.string.frontLeft)),
+        DRIVE_BACK_RIGHT(getResourceString(R.string.frontRight)),
+        WINCH_MAIN(getResourceString(R.string.winchMotorMain)),
+        WINCH_ARM(getResourceString(R.string.winchMotorArm));
+>>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
 
         private int myNameID;
         private String myName;
         private MotorName myMotorName;
+<<<<<<< HEAD
         RuckusMotorName(int nameID) {
             myNameID = nameID;
 
@@ -55,10 +66,24 @@ public abstract class RuckusRobotHardware extends RobotHardware {
                 throw new NullPointerException("Error: " + this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
 
+=======
+
+        RuckusMotorName(String name) {
+            myName = name;
+            myMotorName = new RobotHardware.MotorName(name);
+        }
+
+        String getName() {
+            return myName;
+        }
+
+        MotorName getMotorName() {
+>>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
             return myMotorName;
         }
 
     }
+<<<<<<< HEAD
     public enum RuckusServoName
     {
         J(R.string.intakeServoLeft);
@@ -79,15 +104,34 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             {
                 throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
+=======
+
+    public enum RuckusServoName {
+        J("3");
+        private String myName;
+        private ServoName myServoName;
+
+        RuckusServoName(String name) {
+            myName = name;
+            myServoName = new RobotHardware.ServoName(name);
+        }
+
+        String getName() {
+>>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
             return myName;
 
         }
+<<<<<<< HEAD
         ServoName getServoName()
         {
             if(myName == null)
             {
                 throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
+=======
+
+        ServoName getServoName() {
+>>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
             return myServoName;
 
         }
@@ -99,11 +143,18 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             }
         }
     }
+
     @Override
     public ArrayList<MotorName> getMotors() {
+<<<<<<< HEAD
+        RuckusMotorName.
+                ArrayList<MotorName> names = new ArrayList<MotorName>();
+        for (RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values()) {
+=======
         ArrayList<MotorName> names = new ArrayList<MotorName>();
         for(RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values())
         {
+>>>>>>> e98cec412e75aed7434e8a2dbd9d86208d33bc4e
             names.add(name.getMotorName());
         }
         return names;
@@ -112,12 +163,12 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     @Override
     public ArrayList<ServoName> getServos() {
         ArrayList<ServoName> names = new ArrayList<ServoName>();
-        for(RuckusRobotHardware.RuckusServoName name : RuckusRobotHardware.RuckusServoName.values())
-        {
+        for (RuckusRobotHardware.RuckusServoName name : RuckusRobotHardware.RuckusServoName.values()) {
             names.add(name.getServoName());
         }
         return names;
     }
+<<<<<<< HEAD
 
     @Override
     public void init() {
@@ -126,4 +177,21 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
         super.init();
     }
+=======
+<<<<<<< HEAD
+
+    protected void setDriveForTank(double left, double right)
+    {setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
+    setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
+    setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
+    setPower(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), right);
+    }
+=======
+    public void blah()
+    {
+        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), 1.0);
+    }
+
+>>>>>>> e98cec412e75aed7434e8a2dbd9d86208d33bc4e
+>>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
 }
