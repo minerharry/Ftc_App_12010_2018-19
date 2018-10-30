@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
 import android.content.res.Resources;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.teamcode.opmode.RobotHardware;
 import org.firstinspires.ftc.teamcode.R;
 
@@ -10,41 +12,16 @@ import java.util.ArrayList;
 
 public abstract class RuckusRobotHardware extends RobotHardware {
     public enum RuckusMotorName{
-<<<<<<< HEAD
         DRIVE_FRONT_LEFT (R.string.backLeft),
         DRIVE_FRONT_RIGHT (R.string.backRight),
         DRIVE_BACK_LEFT (R.string.frontLeft),
         DRIVE_BACK_RIGHT (R.string.frontRight),
         WINCH_MAIN(R.string.winchMotorMain),
         WINCH_ARM(R.string.winchMotorArm);
-<<<<<<< HEAD
-=======
-    public enum RuckusMotorName {
-        DRIVE_FRONT_LEFT(getResourceString(R.string.backLeft)),
-        DRIVE_FRONT_RIGHT(getResourceString(R.string.backRight)),
-        DRIVE_BACK_LEFT(getResourceString(R.string.frontLeft)),
-        DRIVE_BACK_RIGHT(getResourceString(R.string.frontRight)),
-        WINCH_MAIN(getResourceString(R.string.winchMotorMain)),
-        WINCH_ARM(getResourceString(R.string.winchMotorArm));
->>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
-=======
-        DRIVE_FRONT_LEFT (getResourceString(R.string.backLeft)),
-        DRIVE_FRONT_RIGHT (getResourceString(R.string.backRight)),
-        DRIVE_BACK_LEFT (getResourceString(R.string.frontLeft)),
-        DRIVE_BACK_RIGHT (getResourceString(R.string.frontRight)),
-        WINCH_MAIN(getResourceString(R.string.winchMotorMain)),
-        WINCH_ARM(getResourceString(R.string.winchMotorArm));
->>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
-=======
->>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
 
+        private int myNameID;
         private String myName;
         private MotorName myMotorName;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
         RuckusMotorName(int nameID) {
             myNameID = nameID;
 
@@ -60,101 +37,66 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             {
                 name.initRobot(map);
             }
-=======
-        RuckusMotorName(String name) {
-            myName = name;
-            myMotorName = new RobotHardware.MotorName(name);
->>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
         }
+
+
         String getName()
         {
+            if(myName == null)
+            {
+                throw new NullPointerException("Error: " + this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
+            }
             return myName;
         }
         MotorName getMotorName()
         {
-<<<<<<< HEAD
             if(myName == null)
             {
                 throw new NullPointerException("Error: " + this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
 
-<<<<<<< HEAD
-=======
-
-        RuckusMotorName(String name) {
-            myName = name;
-            myMotorName = new RobotHardware.MotorName(name);
-        }
-
-        String getName() {
-            return myName;
-        }
-
-        MotorName getMotorName() {
->>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
-=======
->>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
-=======
->>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
             return myMotorName;
         }
 
     }
     public enum RuckusServoName
     {
-        J("3");
+        J(R.string.intakeServoLeft);
+        private int myNameID;
         private String myName;
         private ServoName myServoName;
-        RuckusServoName(String name)
+        RuckusServoName(int nameID)
         {
-            myName = name;
-            myServoName = new RobotHardware.ServoName(name);
+            myNameID = nameID;
+        }
+        public void initRobot(HardwareMap map) {
+            myName = map.appContext.getResources().getString(myNameID);
+            myServoName = new ServoName(myName);
         }
         String getName()
         {
-<<<<<<< HEAD
             if(myName == null)
             {
                 throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
-<<<<<<< HEAD
-=======
-
-    public enum RuckusServoName {
-        J("3");
-        private String myName;
-        private ServoName myServoName;
-
-        RuckusServoName(String name) {
-            myName = name;
-            myServoName = new RobotHardware.ServoName(name);
-        }
-
-        String getName() {
->>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
-=======
->>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
-=======
->>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
             return myName;
+
         }
         ServoName getServoName()
         {
-<<<<<<< HEAD
             if(myName == null)
             {
                 throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
-<<<<<<< HEAD
-=======
-
-        ServoName getServoName() {
->>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
-=======
->>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
-=======
->>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
             return myServoName;
+
+        }
+        public static void initRobotServos(HardwareMap map)
+        {
+            for(RuckusServoName name : RuckusServoName.values())
+            {
+                name.initRobot(map);
+            }
         }
     }
     @Override
@@ -176,11 +118,6 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         }
         return names;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
 
     @Override
     public void init() {
@@ -189,31 +126,24 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
         super.init();
     }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
 
-    protected void setDriveForTank(double left, double right)
-    {setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
-    setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
-    setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
-    setPower(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), right);
-    }
-=======
-    public void blah()
+    protected void setDriveForTank(float left, float right)
     {
-        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), 1.0);
+        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
+        setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
+        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
+        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
     }
 
->>>>>>> e98cec412e75aed7434e8a2dbd9d86208d33bc4e
->>>>>>> 42c2b4541921dc083a89598b4279ca3ab538b2d8
-=======
-    public void blah()
+    protected void setDriveForTankForTurn(float left, float right,float turnLimiter)
     {
-        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), 1.0);
+        double percentDiff = Math.abs(left-left);
+        double percentLimiter = 1 - ((1-turnLimiter)/2 * percentDiff);
+        left *= percentLimiter;
+        left *= percentLimiter;
+        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
+        setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
+        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
+        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
     }
-
->>>>>>> parent of 152bd23... Fixed XML problems and added sections to the ExampleRobotHardware class
-=======
->>>>>>> parent of 7b84ab5... Merge branch 'master' of https://github.com/minerharry/Ftc_App_12010_2018-19
 }
