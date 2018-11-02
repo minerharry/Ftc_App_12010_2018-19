@@ -37,7 +37,7 @@ telemetry.addData("Huzzah", 1);
     {
 leftPower = gamepad1.left_stick_y;
 rightPower = gamepad1.right_stick_y;
-
+float armPower = gamepad1.left_trigger-gamepad1.right_trigger;
 double percentDiff = Math.abs(leftPower-rightPower);
 telemetry.addData("percentDiff", percentDiff);
 double percentLimiter = 1 - ((1-turnLimiter)/2 * percentDiff);
@@ -50,6 +50,7 @@ leftFrontMotor.setPower(leftPower);
 leftBackMotor.setPower(leftPower);
 rightFrontMotor.setPower(rightPower);
 rightBackMotor.setPower(rightPower);
+armMotor.setPower(armPower);
 
     }
 
