@@ -4,18 +4,16 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 //import com.qualcomm.hardware.motors.NeveRest40Gearmotor;
 
 @TeleOp(name="Tank_Drive_Fourmotor", group="Iterative Opmode")
-public class Tele_Tank_Fourmotor extends OpMode{
+public class Sebastians_Tele_Tanker_Fourmotor_Clone extends OpMode{
 
     private DcMotor leftFrontMotor = null;
     private DcMotor leftBackMotor = null;
     private DcMotor rightFrontMotor = null;
     private DcMotor rightBackMotor = null;
+    private DcMotor armMotor = null;
     double leftPower;
     double rightPower;
     private double turnLimiter = 0.6; //the minimum limiting value for when limiting turning
@@ -28,10 +26,11 @@ leftFrontMotor = hardwareMap.get(DcMotor.class, "leftFrontMotor");
 leftBackMotor = hardwareMap.get(DcMotor.class, "leftBackMotor");
 rightFrontMotor = hardwareMap.get(DcMotor.class, "rightFrontMotor");
 rightBackMotor = hardwareMap.get(DcMotor.class, "rightBackMotor");
+armMotor = hardwareMap.get(DcMotor.class, "armMotor");
 
 rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
 rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
-telemetry.addData("Yeehaw", 1);
+telemetry.addData("Huzzah", 1);
     }
 @Override
     public void loop()
