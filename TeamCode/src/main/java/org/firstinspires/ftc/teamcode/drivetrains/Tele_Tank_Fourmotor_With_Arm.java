@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 //import com.qualcomm.hardware.motors.NeveRest40Gearmotor;
 
-@TeleOp(name="Tank_Drive_Fourmotor", group="Iterative Opmode")
+@TeleOp(name="Tank_Drive_Fourmotor_Arm", group="Iterative Opmode")
 public class Tele_Tank_Fourmotor_With_Arm extends OpMode{
 
     private DcMotor leftFrontMotor = null;

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 //import com.qualcomm.hardware.motors.NeveRest40Gearmotor;
 
-@TeleOp(name="Tank_Drive_Fourmotor", group="Iterative Opmode")
+@TeleOp(name="Tank_Drive_Fourmotor_Clone", group="Iterative Opmode")
 public class Sebastians_Tele_Tanker_Fourmotor_Clone extends OpMode{
 
     private DcMotor leftFrontMotor = null;

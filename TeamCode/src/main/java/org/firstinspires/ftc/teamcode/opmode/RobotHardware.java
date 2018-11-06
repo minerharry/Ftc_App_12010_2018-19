@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.util.TypedValue;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -77,6 +78,52 @@ public abstract class RobotHardware extends OpMode {
         }
     }
 
+    /**
+     * Makes a motor whose mode is runToPosition run to some position
+     * @param motor the motor to modify - should be set to runToPosition;
+     * @param position the position in encoder ticks
+     */
+    protected void runToPosition(MotorName motor, int position)
+    {
+        DcMotor m = allMotors.get(motor);
+        if (m == null)
+        {
+            telemetry.addData("Motor Missing", motor.getName());
+        }
+        else if (m.getMode() != DcMotor.RunMode.RUN_TO_POSITION)
+        {
+            telemetry.addData("Motor not Run to Position:", motor.getName());
+        }
+        else
+        {
+            m.setTargetPosition(position);
+        }
+    }
+
+    /**
+     * Rotates motor some number of encoder ticks from its target position
+     * @param motor the motor to modify - needs to be in mode runToPosition
+     * @param increment increment in encoder ticks
+     */
+    protected void incrementMotorToPosition(MotorName motor, int increment)
+    {
+        DcMotor m = allMotors.get(motor);
+        if (m == null)
+        {
+            telemetry.addData("Motor Missing", motor.getName());
+        }
+        else if (m.getMode() != DcMotor.RunMode.RUN_TO_POSITION)
+        {
+            telemetry.addData("Motor mode not Run to Position:", motor.getName());
+        }
+        else
+        {
+            m.setTargetPosition(m.getTargetPosition() + increment);
+        }
+    }
+
+
+
     public static class ServoName {
         private String myName;
 
@@ -90,19 +137,38 @@ public abstract class RobotHardware extends OpMode {
             return myName;
         }
     }
+    public static class CRServoName {
+        private String myName;
+
+        public CRServoName(String name) {myName = name;}
+
+        public String getName() {return  myName;}
+    }
 
 
-    protected void useEncoders(MotorName motor, DcMotor.RunMode encoderType){
+    /**
+     * sets the run mode of the specified motor
+     * @param motor - the motor whose runmode is to be set
+     * @param motorType - the mode to which to set the motor
+     */
+    protected void setMotorType(MotorName motor, DcMotor.RunMode motorType){
         DcMotor m = allMotors.get(motor);
         if (m == null) {
             telemetry.addData("Motor Missing", motor.getName());
         } else {
-            m.setMode(encoderType);
+            m.setMode(motorType);
         }
     }
 
-    protected void setCountsPerInch(double counts, double gear, double inches ){
-        countsPerInch = (counts * gear) / (inches * Math.PI);
+
+    /**
+     * Calculates the countsPerInch of a motor
+     * @param counts - the encoder ticks per revolution
+     * @param gear - Motor gearing up - 60:1, 20:1, 40:1
+     * @param diameter - diameter of wheel (inches
+     */
+    protected void setCountsPerInch(double counts, double gear, double diameter ){
+        countsPerInch = (counts * gear) / (diameter * Math.PI);
     }
 
 
@@ -122,6 +188,15 @@ public abstract class RobotHardware extends OpMode {
         }
     }
 
+    /**
+     * Sets the power of a continuous rotation servo
+     * @param crServo the servo to modify
+     * @param power the power to set [-1,1]
+     */
+    protected void setServoPower(CRServoName crServo, double power)
+    {
+        CRServo crs = allCRServos.get(crServo);
+    }
 
     public static class ColorSensorName {
         private String myName;
@@ -214,6 +289,16 @@ public abstract class RobotHardware extends OpMode {
             }
         }
 
+        allCRServos = new HashMap<CRServoName,CRServo>();
+        for (CRServoName s : getCRServos()) {
+            try {
+                allCRServos.put(s, hardwareMap.get(CRServo.class, s.getName()));
+            } catch (Exception e) {
+                telemetry.addData("CRServo Missing", s.getName());
+                allCRServos.put(s,null);
+            }
+
+        }
       /*  raiseJewelArm();
         centerJewelArm();*/
     }
@@ -227,6 +312,9 @@ public abstract class RobotHardware extends OpMode {
     public ArrayList<ServoName> getServos() {
         return new ArrayList<ServoName>();
     }
+
+    //return configuration-specific list of continuous rotation servos
+    public ArrayList<CRServoName> getCRServos() { return new ArrayList<CRServoName>();}
 
     //return configuration-specific list of color sensors
     public ArrayList<ColorSensorName> getColorSensors() {
@@ -256,6 +344,8 @@ public abstract class RobotHardware extends OpMode {
     private Map<MotorName,DcMotor> allMotors;
     // All servos on the robot, in order of ServoName.
     private Map<ServoName,Servo> allServos;
+    // All CRServos on the robot, in order of ServoName.
+    private Map<CRServoName, CRServo> allCRServos;
     // All color sensors on the robot, in order of ColorSensorName.
     private Map<ColorSensorName,ColorSensor> allColorSensors;
 

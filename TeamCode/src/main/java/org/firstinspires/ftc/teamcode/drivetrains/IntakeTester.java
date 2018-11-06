@@ -19,7 +19,11 @@ public class IntakeTester extends OpMode {
     @Override
     public void loop()
     {
-        intake_left.setPower(gamepad1.left_stick_y);
-        intake_right.setPower(gamepad1.right_stick_y*-1);
+        telemetry.addData("Right Stick:", gamepad1.right_stick_y);
+        telemetry.addData("Left Stick:", gamepad1.left_stick_y);
+        intake_left.setPower(gamepad1.left_stick_y*-0.8);
+        intake_right.setPower(gamepad1.right_stick_y*-0.8);
+        telemetry.addData("Right Power:", intake_right.getPower());
+        telemetry.addData("Left Power:", intake_left.getPower());
     }
 }
