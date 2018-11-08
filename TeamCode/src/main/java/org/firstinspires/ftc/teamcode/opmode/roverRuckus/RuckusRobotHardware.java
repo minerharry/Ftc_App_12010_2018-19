@@ -242,6 +242,11 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected void setIntakeState(boolean state)
     {
+        if (intakeContinuous)
+        {
+            telemetry.addData("Intake Error:", "State is continous, not on/off. Please check code.");
+            return;
+        }
         intakeState = state;
         if(intakeState)
         {
@@ -252,6 +257,18 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             setServoPower(RuckusCRServoName.INTAKE_LEFT.getCRServoName(),0);
             setServoPower(RuckusCRServoName.INTAKE_RIGHT.getCRServoName(),0);
         }
+    }
+
+    protected void setIntakePower(float power)
+    {
+        if (!intakeContinuous)
+        {
+            telemetry.addData("Intake Error:", "State is on/off, not continuous. Please check code.");
+            return;
+        }
+        setServoPower(RuckusCRServoName.INTAKE_LEFT.getCRServoName(), power);
+        setServoPower(RuckusCRServoName.INTAKE_RIGHT.getCRServoName(), -power);
+
     }
 
     protected void setArmPower(float power)
@@ -273,8 +290,16 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         }
     }
 
+    protected void setIntakeType(boolean continuous)
+    {
+        intakeContinuous = continuous;
+    }
+
+    //whether the intake is state based or continuous
+    protected boolean intakeContinuous = false;
     //current state of the intakeServos
     private boolean intakeState = false;
+
     //power of the intake at full
     private static double intakePower = 0.8;
 
