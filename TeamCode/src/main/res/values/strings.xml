@@ -9,4 +9,5 @@
     <string name="intakeServoLeft">Intake_Left</string>
     <string name="intakeServoRight">Intake_Right</string>
     <string name="armMotorMain">Motor_Arm</string>
+    <string name="scoopServo">Servo_Scoop</string>
 </resources>

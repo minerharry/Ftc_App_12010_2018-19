@@ -19,17 +19,16 @@ public class RuckusTankArmIntakeHinge extends RuckusTankBasic {
         {
             s.activate();
         }
+        setIntakeType(true);
     }
 
     @Override
     public void loop()
     {
         super.loop();
-        if (gamepad1.right_bumper)
-            setIntakeState(false);
-        else
-            if (gamepad1.left_bumper)
-                setIntakeState(true);
-        setArmPower(gamepad1.left_trigger - gamepad1.right_trigger);
+        setHingePower(gamepad1.left_trigger - gamepad1.right_trigger);
+        setArmPower(gamepad2.left_trigger - gamepad2.right_trigger);
+        setIntakePower(gamepad1.left_stick_y);
+        incrementScoop(gamepad2.right_stick_y);
     }
 }

@@ -188,6 +188,18 @@ public abstract class RobotHardware extends OpMode {
         }
     }
 
+    protected double getServoPosition(ServoName servo)
+    {
+        Servo s = allServos.get(servo);
+        if (s == null) {
+            telemetry.addData("Servo Missing", servo.getName());
+            return 0.5;
+        } else {
+            return s.getPosition();
+        }
+
+    }
+
     /**
      * Sets the power of a continuous rotation servo
      * @param crServo the servo to modify

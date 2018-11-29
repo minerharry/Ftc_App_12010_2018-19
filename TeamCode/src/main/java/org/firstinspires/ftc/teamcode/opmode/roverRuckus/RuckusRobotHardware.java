@@ -20,10 +20,10 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
 
     public enum RuckusMotorName {
-        DRIVE_FRONT_LEFT (R.string.backLeft),
-        DRIVE_FRONT_RIGHT (R.string.backRight),
-        DRIVE_BACK_LEFT (R.string.frontLeft),
-        DRIVE_BACK_RIGHT (R.string.frontRight),
+        DRIVE_FRONT_LEFT (R.string.frontLeft),
+        DRIVE_FRONT_RIGHT (R.string.frontRight),
+        DRIVE_BACK_LEFT (R.string.backLeft),
+        DRIVE_BACK_RIGHT (R.string.backRight),
         WINCH_MAIN(R.string.winchMotorMain),
         WINCH_ARM(R.string.winchMotorArm),
         MAIN_ARM(R.string.armMotorMain);
@@ -131,7 +131,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     public enum RuckusServoName
     {
-        J(R.string.intakeServoLeft);
+        SCOOP(R.string.scoopServo);
         private int myNameID;
         private String myName;
         private ServoName myServoName;
@@ -218,6 +218,8 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         RuckusServoName.initRobotServos(hardwareMap);
         RuckusCRServoName.initRobotServos(hardwareMap);
         super.init();
+        scoopPos = getServoPosition(RuckusServoName.SCOOP.getServoName());
+
     }
 
     protected void setDriveForTank(float left, float right)
@@ -233,7 +235,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         double percentDiff = Math.abs(left-left);
         double percentLimiter = 1 - ((1-turnLimiter)/2 * percentDiff);
         left *= percentLimiter;
-        left *= percentLimiter;
+        right *= percentLimiter;
         setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
         setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
         setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
@@ -295,6 +297,38 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         intakeContinuous = continuous;
     }
 
+
+    /** various position enums for autonomi **/
+
+    public enum FieldPosition {
+        POSITION_CRATER,
+        POSITION_DEPOT
+    }
+
+    protected void activateAll()
+    {
+        for(RuckusMotorName m : RuckusMotorName.values())
+        {
+            m.activate();
+        }
+        for (RuckusCRServoName c : RuckusCRServoName.values())
+        {
+            c.activate();
+        }
+        for (RuckusServoName s :RuckusServoName.values())
+        {
+            s.activate();
+        }
+    }
+
+    protected void incrementScoop(float increment)
+    {
+        scoopPos += increment*0.075;
+        scoopPos = Math.min(scoopPos,scoopMax);
+        scoopPos = Math.max(scoopPos,scoopMin);
+        setAngle(RuckusServoName.SCOOP.getServoName(),scoopPos);
+    }
+
     //whether the intake is state based or continuous
     protected boolean intakeContinuous = false;
     //current state of the intakeServos
@@ -304,14 +338,8 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private static double intakePower = 0.8;
 
     //powers of the winch's main and arm motors when raising/lowering
-    private static double winchMainRaisePower = 0.3, winchArmRaisePower = 1, winchMainLowerPower = 1, winchArmLowerPower = 0.25;
+    private static double winchMainRaisePower = -1, winchArmRaisePower = 1, winchMainLowerPower = -1, winchArmLowerPower = 0.25;
 
-    /** various position enums for autonomi **/
-
-    public enum FieldPosition {
-        POSITION_CRATER,
-        POSITION_DEPOT
-    }
-
-
+    private static double scoopMin = 0.2, scoopMax = 0.8;
+    private double scoopPos;
 }

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="HingeTesterWithRatios")
+@TeleOp(name="HingeTesterArmAndTank")
 public class RuckusHingeTankArm extends RuckusTankBasic {
     @Override public void init()
     {

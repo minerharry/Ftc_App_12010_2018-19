@@ -7,6 +7,7 @@ Right bumper: Deactivate intake
 Dpad up: Raise babyarm - winch 0.3 power, chain at full power
 Dpad down: Lower babyarm - winch full power, chain 0.25 power
 Current GamePad (2 pad) Controls:
+
 Pad 1:
 Joysticks up/down - tank drive
 Left Trigger: Raise babyarm - winch 0.3 power, chain at full

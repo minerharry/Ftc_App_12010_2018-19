@@ -11,6 +11,10 @@ package org.firstinspires.ftc.teamcode.base;
  */
 
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.opmode.StateMachineAutonomous;
+
 /** About the State machine:
  * A State (defined here) is a customized method wrapped in a class.
  * After set intervals(?), the state machine will call the update() function, which will return the next state
@@ -33,6 +37,9 @@ public class StateMachine {
          * @return The next state to run.
          */
         public State update();
+
+
+
     }
 
     /**
@@ -67,4 +74,5 @@ public class StateMachine {
 
     // The current state.
     private State state;
+
 }

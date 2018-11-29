@@ -14,7 +14,7 @@ public class RuckusTankBasic extends RuckusRobotHardware {
     @Override
     public void loop()
     {
-        setDriveForTankForTurn(gamepad1.left_stick_y,gamepad1.right_stick_y,turnLimiter);
+        setDriveForTankForTurn(gamepad1.left_stick_y,-gamepad1.right_stick_y,turnLimiter);
         super.loop();
     }
 }
