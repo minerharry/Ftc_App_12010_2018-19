@@ -16,7 +16,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     protected static RuckusMotorName[] winchMotors = {RuckusMotorName.WINCH_MAIN, RuckusMotorName.WINCH_ARM};
     protected static RuckusMotorName[] armMotor = {RuckusMotorName.MAIN_ARM};
     protected static RuckusCRServoName[] intakeServos = {RuckusCRServoName.INTAKE_LEFT,RuckusCRServoName.INTAKE_RIGHT};
-
+    protected static RuckusServoName[] armSlideServo = {RuckusServoName.ARM_SLIDE};
 
 
     public enum RuckusMotorName {
@@ -131,14 +131,24 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     public enum RuckusServoName
     {
-        SCOOP(R.string.scoopServo);
+        SCOOP(R.string.scoopServo,scoopMin,scoopMax),
+        ARM_SLIDE(R.string.armServoSlide,slideMin,slideMax);
         private int myNameID;
+        private double myMin;
+        private double myMax;
+        private double myPos;
         private String myName;
         private ServoName myServoName;
         private boolean isActivated = false;
         RuckusServoName(int nameID)
         {
             myNameID = nameID;
+        }
+        RuckusServoName(int nameID,double min, double max)
+        {
+            myNameID = nameID;
+            myMin = min;
+            myMax = max;
         }
         public void initRobot(HardwareMap map) {
             myName = map.appContext.getResources().getString(myNameID);
@@ -152,6 +162,35 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         {
             isActivated = true;
         }
+        double getMin()
+        {
+            return myMin;
+        }
+        double getMax()
+        {
+            return myMax;
+        }
+        double getPos()
+        {
+            return myPos;
+        }
+        protected void setPos(double pos)
+        {
+            myPos = pos;
+        }
+        protected double verifyAngle(double angle)
+        {
+            angle = Math.max(angle,myMin);
+            angle = Math.min(angle,myMax);
+            return angle;
+        }
+
+        protected double incrementPos(double increment)
+        {
+            myPos = verifyAngle(myPos+increment);
+            return myPos;
+        }
+
         String getName()
         {
             if(myName == null)
@@ -218,7 +257,13 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         RuckusServoName.initRobotServos(hardwareMap);
         RuckusCRServoName.initRobotServos(hardwareMap);
         super.init();
-        scoopPos = getServoPosition(RuckusServoName.SCOOP.getServoName());
+        for (RuckusServoName name : RuckusServoName.values())
+        {
+            if (name.isActivated)
+            {
+                name.setPos(getServoPosition(name.getServoName()));
+            }
+        }
 
     }
 
@@ -323,10 +368,13 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected void incrementScoop(float increment)
     {
-        scoopPos += increment*0.075;
-        scoopPos = Math.min(scoopPos,scoopMax);
-        scoopPos = Math.max(scoopPos,scoopMin);
-        setAngle(RuckusServoName.SCOOP.getServoName(),scoopPos);
+        setAngle(RuckusServoName.SCOOP.getServoName(),RuckusServoName.SCOOP.incrementPos(increment*0.075));
+
+    }
+
+    protected void slideArm(float power)
+    {
+        setAngle(RuckusServoName.SCOOP.getServoName(),RuckusServoName.SCOOP.incrementPos(power*0.05));
     }
 
     //whether the intake is state based or continuous
@@ -341,5 +389,5 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private static double winchMainRaisePower = -1, winchArmRaisePower = 1, winchMainLowerPower = -1, winchArmLowerPower = 0.25;
 
     private static double scoopMin = 0.2, scoopMax = 0.8;
-    private double scoopPos;
+    private static double slideMin = 0.1, slideMax = 1.0;
 }

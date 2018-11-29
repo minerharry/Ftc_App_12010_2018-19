@@ -19,6 +19,10 @@ public class RuckusTankArmIntakeHinge extends RuckusTankBasic {
         {
             s.activate();
         }
+        for (RuckusServoName m : armSlideServo)
+        {
+            m.activate();
+        }
         setIntakeType(true);
     }
 
@@ -30,5 +34,6 @@ public class RuckusTankArmIntakeHinge extends RuckusTankBasic {
         setArmPower(gamepad2.left_trigger - gamepad2.right_trigger);
         setIntakePower(gamepad1.left_stick_y);
         incrementScoop(gamepad2.right_stick_y);
+        slideArm((gamepad2.left_bumper ? 1 : 0) + (gamepad2.right_bumper ? -1 : 0));
     }
 }

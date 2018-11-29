@@ -6,8 +6,9 @@
     <string name="frontRight">Motor_Front_Right</string>
     <string name="winchMotorMain">Motor_Winch_Main</string>
     <string name="winchMotorArm">Motor_Winch_Arm</string>
-    <string name="intakeServoLeft">Intake_Left</string>
-    <string name="intakeServoRight">Intake_Right</string>
+    <string name="intakeServoLeft">Servo_Intake_Left</string>
+    <string name="intakeServoRight">Servo_Intake_Right</string>
     <string name="armMotorMain">Motor_Arm</string>
     <string name="scoopServo">Servo_Scoop</string>
+    <string name="armServoSlide">Servo_Arm_Slide</string>
 </resources>
