@@ -278,6 +278,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     protected void setDriveForTankForTurn(float left, float right,float turnLimiter)
     {
         double percentDiff = Math.abs(left-left);
+
         double percentLimiter = 1 - ((1-turnLimiter)/2 * percentDiff);
         left *= percentLimiter;
         right *= percentLimiter;
