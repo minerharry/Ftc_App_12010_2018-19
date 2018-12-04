@@ -284,7 +284,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
         setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
         setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
-        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
+        setPower(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), right);
     }
 
     protected void setIntakeState(boolean state)

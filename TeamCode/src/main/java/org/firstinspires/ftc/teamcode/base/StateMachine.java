@@ -13,7 +13,6 @@ package org.firstinspires.ftc.teamcode.base;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.opmode.StateMachineAutonomous;
 
 /** About the State machine:
  * A State (defined here) is a customized method wrapped in a class.
