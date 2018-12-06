@@ -14,6 +14,9 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.opencv.core.Core.flip;
+import static org.opencv.core.Core.transpose;
+
 /**
  * Created by Victo on 9/10/2018.
  */
@@ -28,6 +31,7 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
     private Size adjustedSize;
     private Mat workingMat = new Mat();
     public double maxDifference = 10;
+    public boolean isSideways = true;
 
     public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.BALANCED;
     public double downscale = 0.5;
@@ -75,7 +79,21 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
             return rgba;
         }
         Imgproc.resize(workingMat, workingMat,adjustedSize); // Downscale
-        Imgproc.resize(process(workingMat),workingMat,getInitSize()); // Process and scale back to original size for viewing
+
+        //Added Code: Minerharry (12010) - adapt for sideways cameras, larger field of view.
+
+        if(isSideways)
+        {
+            transpose(workingMat,workingMat);
+            flip(workingMat,workingMat,1);
+        }
+        Mat tempMat = process(workingMat);
+        if(isSideways) {
+            transpose(tempMat, tempMat);
+            flip(tempMat,tempMat,0);
+            transpose(workingMat,workingMat);
+        }
+        Imgproc.resize(tempMat,workingMat,getInitSize()); // Process and scale back to original size for viewing
         //Print Info
         Imgproc.putText(workingMat,"DogeCV 2018.2 " + detectorName + ": " + getAdjustedSize().toString() + " - " + speed.toString() ,new Point(5,30),0,0.5,new Scalar(0,255,255),2);
 

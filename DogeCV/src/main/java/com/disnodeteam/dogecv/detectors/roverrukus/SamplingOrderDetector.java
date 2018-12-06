@@ -250,10 +250,16 @@ public class SamplingOrderDetector extends DogeCVDetector {
             isFound = false;
         }
 
-        //Display Debug Information
-        Imgproc.putText(displayMat,"Gold Position: " + lastOrder.toString(),new Point(10,getAdjustedSize().height - 30),0,1, new Scalar(255,255,0),1);
-        Imgproc.putText(displayMat,"Current Track: " + currentOrder.toString(),new Point(10,getAdjustedSize().height - 10),0,0.5, new Scalar(255,255,255),1);
-
+        if (isSideways)
+        {
+            Imgproc.putText(displayMat, "Gold Position: " + lastOrder.toString(), new Point(10, getAdjustedSize().width - 30), 0, 1, new Scalar(255, 255, 0), 1);
+            Imgproc.putText(displayMat, "Current Track: " + currentOrder.toString(), new Point(10, getAdjustedSize().width - 10), 0, 0.5, new Scalar(255, 255, 255), 1);
+        }
+        else {
+            //Display Debug Information
+            Imgproc.putText(displayMat, "Gold Position: " + lastOrder.toString(), new Point(10, getAdjustedSize().height - 30), 0, 1, new Scalar(255, 255, 0), 1);
+            Imgproc.putText(displayMat, "Current Track: " + currentOrder.toString(), new Point(10, getAdjustedSize().height - 10), 0, 0.5, new Scalar(255, 255, 255), 1);
+        }
         return displayMat;
     }
 
