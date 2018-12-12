@@ -62,7 +62,8 @@ public class RelicRecoveryAuto extends RelicRobotHardware {
         State playback = new BlackboxPlayback(
                 getStartPositionName(robotColor, robotStartPos), null);
         State hitJewel = newHitJewel(playback);
-        machine = new StateMachine(hitJewel);
+        machine = new StateMachine();
+        machine.startMachine(hitJewel);
 
         telemetry.update();
     }
@@ -70,7 +71,7 @@ public class RelicRecoveryAuto extends RelicRobotHardware {
     @Override
     public void loop() {
         super.loop();
-        machine.update();
+        machine.updateMachine();
         telemetry.update();
     }
 

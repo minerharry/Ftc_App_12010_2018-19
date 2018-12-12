@@ -122,6 +122,45 @@ public abstract class RobotHardware extends OpMode {
         }
     }
 
+    /**
+     * Returns the current position of a motor, in encoder ticks
+     * @param motor the motor whose position to get
+     **/
+    protected int getMotorPosition(MotorName motor)
+    {
+        DcMotor m = allMotors.get(motor);
+        if (m == null)
+        {
+            telemetry.addData("Motor Missing", motor.getName());
+        }
+        else
+        {
+            return m.getCurrentPosition();
+        }
+        return -1;
+    }
+
+    /**
+     * Returns the current position of a motor, in encoder ticks
+     * @param motor the motor whose position to get
+     */
+    protected int getMotorTargetPosition(MotorName motor)
+    {
+        DcMotor m = allMotors.get(motor);
+        if (m == null)
+        {
+            telemetry.addData("Motor Missing", motor.getName());
+        }
+        else if (m.getMode() != DcMotor.RunMode.RUN_TO_POSITION)
+        {
+            telemetry.addData("Motor mode not Run to Position:", motor.getName());
+        }
+        else
+        {
+            return m.getTargetPosition();
+        }
+        return -1;
+    }
 
 
     public static class ServoName {

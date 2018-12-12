@@ -119,9 +119,9 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             return myServoName;
 
         }
-        public static void initRobotServos(HardwareMap map)
+        public static void initRobotCRServos(HardwareMap map)
         {
-            for(RuckusServoName name : RuckusServoName.values())
+            for(RuckusCRServoName name : RuckusCRServoName.values())
             {
                 name.initRobot(map);
             }
@@ -136,7 +136,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         private int myNameID;
         private double myMin;
         private double myMax;
-        private double myPos;
+        private double myPos = 0.5;
         private String myName;
         private ServoName myServoName;
         private boolean isActivated = false;
@@ -255,13 +255,13 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     public void init() {
         RuckusMotorName.initRobotMotors(hardwareMap);
         RuckusServoName.initRobotServos(hardwareMap);
-        RuckusCRServoName.initRobotServos(hardwareMap);
+        RuckusCRServoName.initRobotCRServos(hardwareMap);
         super.init();
         for (RuckusServoName name : RuckusServoName.values())
         {
             if (name.isActivated)
             {
-                name.setPos(getServoPosition(name.getServoName()));
+                //name.setPos(getServoPosition(name.getServoName()));
             }
         }
 
@@ -375,6 +375,8 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     protected void slideArm(float power)
     {
         setAngle(RuckusServoName.SCOOP.getServoName(),RuckusServoName.SCOOP.incrementPos(power*0.05));
+        telemetry.addData("Arm slid", "Current Pos: " + RuckusServoName.SCOOP.getPos());
+
     }
 
     //whether the intake is state based or continuous

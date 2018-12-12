@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  * A State (defined here) is a customized method wrapped in a class.
  * After set intervals(?), the state machine will call the update() function, which will return the next state
  * Often there is a state that is a WaitFor or WaitTime
- *
+ * Statemachine tutorial/support: https://pmtischler-ftc-app.readthedocs.io/en/latest/tutorials/state_machine.html
  */
 public class StateMachine {
 
@@ -37,15 +37,17 @@ public class StateMachine {
          */
         public State update();
 
+        }
 
-
+    public interface StateTemplate
+    {
+        State makeState(State initial);
     }
-
     /**
      * Creates the state machine with the initial state.
      * @param initial The initial state.
      */
-    public StateMachine(State initial) {
+    public void startMachine(State initial){
         state = initial;
         state.start();
     }
@@ -54,7 +56,7 @@ public class StateMachine {
     /**
      * Performs an update on the state machine.
      */
-    public void update() {
+    public void updateMachine() {
         if (state == null) {
             return;
         }
@@ -65,6 +67,7 @@ public class StateMachine {
         }
         state = next;
     }
+
 
     // Gets the current state.
     public State currentState() {
