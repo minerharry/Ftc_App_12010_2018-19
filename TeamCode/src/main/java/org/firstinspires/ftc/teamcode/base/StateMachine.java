@@ -33,15 +33,40 @@ public class StateMachine {
 
         /**
          * Called on each update.
+         *
          * @return The next state to run.
          */
         public State update();
+        public static final State END = new State() {
+            @Override
+            public void start() {
+
+            }
+
+            @Override
+            public State update() {
+                return this;
+            }
+        };
+
+    }
+
+        public static abstract class LinearState implements State{
+            public State next;
+            public LinearState(State nextState)
+            {
+                next = nextState;
+            }
+        }
+        public static abstract class BranchingState {
 
         }
 
-    public interface StateTemplate
+
+
+    public interface LinearStateTemplate
     {
-        State makeState(State initial);
+        LinearState makeState(State nextState);
     }
     /**
      * Creates the state machine with the initial state.
@@ -57,7 +82,7 @@ public class StateMachine {
      * Performs an update on the state machine.
      */
     public void updateMachine() {
-        if (state == null) {
+        if ((state == null) || (state == State.END)) {
             return;
         }
 
@@ -76,5 +101,6 @@ public class StateMachine {
 
     // The current state.
     private State state;
+
 
 }
