@@ -15,7 +15,7 @@ public class RuckusEncoderTest extends RuckusTankBasic {
         for (RuckusMotorName m : armMotor)
         {
             m.activate();
-            setMotorType(m.getMotorName(),DcMotor.RunMode.RUN_TO_POSITION);
+            setMotorType(m.getMotorName(),DcMotor.RunMode.RUN_USING_ENCODER);
         }
         for (RuckusServoName m : armSlideServo)
         {
@@ -33,8 +33,12 @@ public class RuckusEncoderTest extends RuckusTankBasic {
     {
         super.loop();
         setHingePower(gamepad1.left_trigger - gamepad1.right_trigger);
-        incrementMotorToPosition(RuckusMotorName.MAIN_ARM.getMotorName(),(int)(gamepad2.left_trigger-gamepad2.right_trigger*20));
+        setArmPower(gamepad2.left_trigger-gamepad2.right_trigger);
+        //incrementMotorToPosition(RuckusMotorName.MAIN_ARM.getMotorName(),(int)(gamepad2.left_trigger-gamepad2.right_trigger*20));
         slideArm((gamepad2.left_bumper ? 1 : 0) + (gamepad2.right_bumper ? -1 : 0));
-
+        telemetry.addData("Arm Position", getMotorPosition(RuckusMotorName.MAIN_ARM.getMotorName()));
     }
+    private boolean position;
+    private int position1;
+    private int position2;
 }
