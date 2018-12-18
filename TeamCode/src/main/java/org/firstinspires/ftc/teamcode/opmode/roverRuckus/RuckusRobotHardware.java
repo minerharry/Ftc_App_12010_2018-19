@@ -378,6 +378,10 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         telemetry.addData("Arm slid", "Current Pos: " + RuckusServoName.SCOOP.getPos());
 
     }
+    protected void incrementArmTargetPositionWithEncoder(float power)
+    {
+        super.incrementMotorToPosition(RuckusMotorName.MAIN_ARM.getMotorName(),Math.round( armIncrementRatio*power));
+    }
 
     //whether the intake is state based or continuous
     protected boolean intakeContinuous = false;
@@ -391,5 +395,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private static double winchMainRaisePower = -1, winchArmRaisePower = 1, winchMainLowerPower = -1, winchArmLowerPower = 0.25;
 
     private static double scoopMin = 0.2, scoopMax = 0.8;
-    private static double slideMin = 0.1, slideMax = 1.0;
+    private static double slideMin = 0.1, slideMax = 0.7;
+
+    private static int armIncrementRatio = 50;
 }

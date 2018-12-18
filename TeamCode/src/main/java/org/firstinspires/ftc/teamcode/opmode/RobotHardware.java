@@ -118,6 +118,10 @@ public abstract class RobotHardware extends OpMode {
         }
         else
         {
+            if (m.getPower() == 0)
+            {
+                telemetry.addData("Warning: Motor power equal to zero:", motor.getName());
+            }
             m.setTargetPosition(m.getTargetPosition() + increment);
         }
     }

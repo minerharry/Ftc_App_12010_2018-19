@@ -7,17 +7,19 @@ package org.firstinspires.ftc.teamcode.control;
 /**
  * PID Controller: kp * (e + (integral(e) / ti) + (td * derivative(e))).
  * https://en.wikipedia.org/wiki/PID_controller#Ideal_versus_standard_PID_form
+ * Tutorial: https://pmtischler-ftc-app.readthedocs.io/en/latest/tutorials/pid_control.html
+ * Help on tuning: Section called manual tuning
  */
 public class Pid {
     /**
      * Creates a PID Controller.
-     * @param kp Proportional factor to scale error to output.
-     * @param ti The number of seconds to eliminate all past errors.
-     * @param td The number of seconds to predict the error in the future.
-     * @param integralMin The min of the running integral.
-     * @param integralMax The max of the running integral.
-     * @param outputMin The min of the PID output.
-     * @param outputMax The max of the PID output.
+     * @param kp Proportional factor to scale error to output. -- reaction to the past errors; too high and it'll overreact, to low and it'll be sluggish
+     * @param ti The number of seconds to eliminate all past errors. -- for the integral
+     * @param td The number of seconds to predict the error in the future. -- for the derivative
+     * @param integralMin The min of the running integral. -- see below
+     * @param integralMax The max of the running integral. -- the min/maxes of the possible speed of the motor in maximum input
+     * @param outputMin The min of the PID output. -- see below
+     * @param outputMax The max of the PID output. -- the desired bounds of the output of the PID function (related to but NOT THE SAME AS Kp)
      */
     public Pid(double kp, double ti, double td, double integralMin,
                double integralMax, double outputMin, double outputMax) {

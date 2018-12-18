@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.base.StateMachine;
@@ -13,40 +14,133 @@ import java.util.ArrayList;
 public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
     StateMachine myMachine = new StateMachine();
+
     @Override
-    public void init()
-    {
+    public void init() {
         super.init();
-        LinearStateTemplate templateA = new StringDurationTemplate(15,"Templated state a");
-        LinearStateTemplate templateB = new StringDurationTemplate(15,"Templated state B");
+        LinearStateTemplate templateA = new StringDurationTemplate(15, "Templated state a");
+        LinearStateTemplate templateB = new StringDurationTemplate(15, "Templated state B");
         ArrayList<LinearStateTemplate> templates = new ArrayList<>();
-        templates.add(templateA);templates.add(templateB);
-        State last = new DisplayStringForDuration(7,"End",State.END);
-        State next = new StateGroup(templates,last);
+        templates.add(templateA);
+        templates.add(templateB);
+        State last = new DisplayStringForDuration(7, "End", State.END);
+        State next = new StateGroup(templates, last);
 
         myMachine.startMachine(new DisplayStringForDuration(7.5, "First State", next));
 
     }
 
 
-
     @Override
-    public void loop()
-    {
+    public void loop() {
         super.loop();
         myMachine.updateMachine();
     }
-    public static ArrayList<LinearState> assembleTemplates(ArrayList<LinearStateTemplate> templates, State nextState)
-    {
+
+    public static ArrayList<LinearState> assembleTemplates(ArrayList<LinearStateTemplate> templates, State nextState) {
         ArrayList<LinearState> result = new ArrayList<>();
         LinearState newState;
-        for(int i = templates.size()-1; i>=0; i--)
-        {
+        for (int i = templates.size() - 1; i >= 0; i--) {
             newState = templates.get(i).makeState(nextState);
-            result.add(0,newState);
+            result.add(0, newState);
             nextState = newState;
         }
         return result;
+    }
+
+    private class RunMotorToEncoderLinear extends LinearState {
+        public RunMotorToEncoderLinear(State nextState, double power, int position, MotorName motorName) {
+            super(nextState);
+            myPower = power;
+            myTarget = position;
+            myMotor = motorName;
+            setMotorType(motorName, DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        public RunMotorToEncoderLinear(State nextState, double power, int position, MotorName motorName, int tolerance) {
+            super(nextState);
+            myPower = power;
+            myTarget = position;
+            myMotor = motorName;
+            myTolerance = tolerance;
+        }
+
+        @Override
+        public void start() {
+            setMotorType(myMotor, DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        public State update() {
+            int currentPosition = getMotorPosition(myMotor);
+            setPower(myMotor, myPower * (myTarget - currentPosition < 0 ? -1 : 1));
+            if (Math.abs(currentPosition - myTarget) < myTolerance) {
+                return next;
+            }
+            return this;
+        }
+
+        private double myPower;
+        private int myTarget;
+        private MotorName myMotor;
+        private int myTolerance = 10;
+    }
+
+
+    private class ParallelStateGroup extends LinearState
+    {
+        private ArrayList<State> myStates;
+        public ParallelStateGroup(ArrayList<LinearStateTemplate> stateTemplates, State nextState)
+        {
+            super(nextState);
+            myStates = new ArrayList<>();
+            for(LinearStateTemplate template : stateTemplates)
+            {
+                myStates.add(template.makeState(State.END));
+            }
+        }
+        public ParallelStateGroup(State nextState, ArrayList<State> states)
+        {
+            super(nextState);
+            myStates = states;
+        }
+        public void start()
+        {
+            for(State state : myStates)
+            {
+                state.start();
+            }
+        }
+        public State update()
+        {
+            boolean anyActive = false;
+            for(int i = 0; i < myStates.size(); i++)
+            {
+                State currentState = myStates.get(i);
+                if (currentState != State.END)
+                {
+                    anyActive = true;
+                    myStates.set(i,currentState.update());
+                }
+            }
+            if (anyActive)
+            {
+                return this;
+            }
+            return next;
+        }
+    }
+    private class ParallelGroupTemplate implements LinearStateTemplate
+    {
+        private ArrayList<State> myStates;
+        public ParallelGroupTemplate(ArrayList<State> states)
+        {
+            myStates = states;
+        }
+
+        @Override
+        public LinearState makeState(State nextState) {
+            return new ParallelStateGroup(nextState,myStates);
+        }
     }
     private class StateGroup extends LinearState
     {
@@ -78,6 +172,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         }
 
     }
+
     public class GroupTemplate implements LinearStateTemplate {
         public GroupTemplate(ArrayList<LinearStateTemplate> templates)
         {
