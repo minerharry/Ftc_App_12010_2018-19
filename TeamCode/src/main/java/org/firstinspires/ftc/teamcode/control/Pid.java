@@ -6,6 +6,8 @@ package org.firstinspires.ftc.teamcode.control;
  * File by Pmtischler
  */
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 /**
  * PID Controller: kp * (e + (integral(e) / ti) + (td * derivative(e))).
  * https://en.wikipedia.org/wiki/PID_controller#Ideal_versus_standard_PID_form
@@ -102,6 +104,7 @@ public class Pid {
         previousError = e;
         return output;
     }
+
 
     public static class PIDConstants {
         public double kp;

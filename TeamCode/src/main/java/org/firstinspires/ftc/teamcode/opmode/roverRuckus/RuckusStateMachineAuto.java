@@ -25,9 +25,16 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         templates.add(templateA);
         templates.add(templateB);
         State last = new DisplayStringForDuration(7, "End", State.END);*/
-
-        RuckusMotorName.MAIN_ARM.activate();
-        State next = new RunMotorToEncoderLinear(State.END, 1.0, 5000, RuckusMotorName.MAIN_ARM.getMotorName());
+        State nested3rd = new DisplayStringForDuration(10,"it's states all the way down!",State.END);
+        State state1b = new DisplayStringForDuration(5,"Displayer 1b", State.END);
+        State state2b = new DisplayStringForDuration(10,"Displayer 2b", nested3rd);
+        State state3b = new DisplayStringForDuration(15,"Displayer 3b", State.END);
+        State state1 = new DisplayStringForDuration(15,"Displayer 1", state1b);
+        State state2 = new DisplayStringForDuration(10,"Displayer 2", state2b);
+        State state3 = new DisplayStringForDuration(5,"Displayer 3", state3b);
+        ArrayList<State> states = new ArrayList<>();
+        states.add(state1);states.add(state2);states.add(state3);
+        State next = new SyncedParallelStateGroup(State.END,states);
 
         myMachine.startMachine(next);
 
@@ -213,7 +220,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                 {
                     anyActive = true;
                     State tempState = currentState;
-                    currentState.update();
+                    currentState = currentState.update();
                     if (tempState != currentState)
                         currentState.start();
                     myStates.set(i,currentState);
@@ -263,6 +270,11 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         {
             super(nextState);
             myStates = states;
+            stateChanged = new ArrayList<>();
+            for (State state : myStates)
+            {
+                stateChanged.add(false);
+            }
         }
         public void start()
         {
@@ -283,7 +295,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                     anyActive = true;
                     if (!stateChanged.get(i)) {
                         State tempState = currentState;
-                        currentState.update();
+                        currentState = currentState.update();
                         if (tempState != currentState)
                             stateChanged.set(i, true);
                         else
@@ -292,12 +304,9 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                     }
                 }
             }
-            if (anyActive)
-            {
-                return this;
-            }
             if (!anyUnchanged)
             {
+                telemetry.addData("Unchanged Status", "None unchanged");
                 stateChanged.clear();
                 for(int i = 0; i < myStates.size(); i++)
                 {
@@ -305,6 +314,11 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                     myStates.get(i).start();
                 }
             }
+            if (anyActive)
+            {
+                return this;
+            }
+
             return next;
         }
     }
