@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+@TeleOp(name="Basic Tank Drive")
 public class RuckusTankBasic extends RuckusRobotHardware {
     private static final float turnLimiter = 0.6f;
     @Override
