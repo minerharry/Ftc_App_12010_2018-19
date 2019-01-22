@@ -105,6 +105,12 @@ public class Pid {
         return output;
     }
 
+    public void tuneConstants(double kpTweaked, double tiTweaked, double tdTweaked) {
+        kp += kpTweaked;
+        ti += tiTweaked;
+        td += tdTweaked;
+    }
+
 
     public static class PIDConstants {
         public double kp;
@@ -113,8 +119,7 @@ public class Pid {
         public double intMin, intMax;
         public double outMin, outMax;
 
-        public PIDConstants(double kp, double ti, double td, double intMin, double intMax, double outMin, double outMax)
-        {
+        public PIDConstants(double kp, double ti, double td, double intMin, double intMax, double outMin, double outMax) {
             this.kp = kp;
             this.ti = ti;
             this.td = td;
@@ -131,24 +136,34 @@ public class Pid {
      * Assumes motor takes input from -1 to 1
      * To limit motor max speed, use PIDConstants with custom outMin and outMax
      */
-    public static class MotorPIDConstants extends PIDConstants{
-        public MotorPIDConstants(double kp, double ti, double td, double intMin, double intMax)
-        {
-            super(kp,ti,td,intMin,intMax,-1.0,1.0);
+    public static class MotorPIDConstants extends PIDConstants {
+        public MotorPIDConstants(double kp, double ti, double td, double intMin, double intMax) {
+            super(kp, ti, td, intMin, intMax, -1.0, 1.0);
         }
 
     }
+
     /**
      * Further template of above MotorPIDConstants to make tuning more regular
      * Assumes motor takes input from -1 to 1 and takes a maxspeed instead of intMin/max
      * To limit motor max speed, use PIDConstants with custom outMin and outMax
      * to use custom integral limiting,
      */
-    public static class DrivePIDConstants extends MotorPIDConstants{
-        public DrivePIDConstants(double kp, double ti, double td, double maxWheelSpeed)
-        {
-            super(kp,ti,td,-maxWheelSpeed,maxWheelSpeed);
+    public static class DrivePIDConstants extends MotorPIDConstants {
+        public DrivePIDConstants(double kp, double ti, double td, double maxWheelSpeed) {
+            super(kp, ti, td, -maxWheelSpeed, maxWheelSpeed);
         }
 
+    }
+
+    public double getKp()
+    {return kp;}
+
+    public double getTi() {
+        return ti;
+    }
+
+    public double getTd() {
+        return td;
     }
 }

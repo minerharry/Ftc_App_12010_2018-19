@@ -47,13 +47,17 @@ public abstract class RobotHardware extends OpMode {
     public static class MotorName {
         private String myName;
 
+
         public MotorName(String name) {
             myName = name;
+
         }
 
         public String getName() {
             return myName;
         }
+
+
     }
 
     // The motors on the robot.
@@ -83,7 +87,7 @@ public abstract class RobotHardware extends OpMode {
      * @param motor the motor to modify - should be set to runToPosition;
      * @param position the position in encoder ticks
      */
-    protected void runToPosition(MotorName motor, int position)
+    protected void setMotorTargetPosition(MotorName motor, int position)
     {
         DcMotor m = allMotors.get(motor);
         if (m == null)
@@ -92,7 +96,7 @@ public abstract class RobotHardware extends OpMode {
         }
         else if (m.getMode() != DcMotor.RunMode.RUN_TO_POSITION)
         {
-            telemetry.addData("Motor not Run to Position:", motor.getName());
+            telemetry.addData("Motor not in mode run to Position:", motor.getName());
         }
         else
         {
@@ -155,7 +159,7 @@ public abstract class RobotHardware extends OpMode {
         {
             telemetry.addData("Motor Missing", motor.getName());
         }
-        else if (m.getMode() != DcMotor.RunMode.RUN_TO_POSITION)
+        else if (m.getMode() != DcMotor.RunMode.RUN_TO_POSITION && m.getMode() != DcMotor.RunMode.RUN_USING_ENCODER)
         {
             telemetry.addData("Motor mode not Run to Position:", motor.getName());
         }
@@ -392,11 +396,11 @@ public abstract class RobotHardware extends OpMode {
         for (ColorSensorName s : getColorSensors()) {
             setColorSensorLedEnabled(s, false);
         }
-
     }
 
     // All motors on the robot, in order of MotorName.
     private Map<MotorName,DcMotor> allMotors;
+
     // All servos on the robot, in order of ServoName.
     private Map<ServoName,Servo> allServos;
     // All CRServos on the robot, in order of ServoName.

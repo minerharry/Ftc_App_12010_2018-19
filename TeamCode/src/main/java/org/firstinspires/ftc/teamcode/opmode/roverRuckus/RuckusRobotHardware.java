@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
 import android.content.res.Resources;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.control.Pid;
 import org.firstinspires.ftc.teamcode.opmode.RobotHardware;
 import org.firstinspires.ftc.teamcode.R;
 
@@ -32,6 +35,10 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         private String myName;
         private MotorName myMotorName;
         private boolean isActivated = false;
+        private boolean modeMaintainPos = false;
+        private Pid myMaintainPid = null;
+        private int myMaintainTargetPosition;
+        private double pidLastUpdate = -1;
 
         RuckusMotorName(int nameID) {
             myNameID = nameID;
@@ -52,6 +59,38 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             {
                 name.initRobot(map);
             }
+        }
+        public void activateMaintainPosition(Pid.PIDConstants constants, double startTime)
+        {
+            modeMaintainPos = true;
+            myMaintainPid = new Pid(constants);
+            pidLastUpdate = startTime;
+        }
+        public void deactivateMaintainPosition()
+        {
+            modeMaintainPos = false;
+            myMaintainPid = null;
+            pidLastUpdate = -1;
+        }
+        public Pid getMyMaintainPid()
+        {
+            return myMaintainPid;
+        }
+        public boolean getMaintainPositionActive()
+        {
+            return modeMaintainPos;
+        }
+        public double updateMaintainPid(int currentPosition, double currentTime)
+        {
+            return myMaintainPid.update(myMaintainTargetPosition,currentPosition,currentTime-pidLastUpdate);
+        }
+        public void setMotorTargetPosition(int targetPosition)
+        {
+            myMaintainTargetPosition = targetPosition;
+        }
+        public int getMotorTargetMaintainPosition()
+        {
+            return myMaintainTargetPosition;
         }
 
         public boolean getActivated()
@@ -132,7 +171,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     public enum RuckusServoName
     {
         SCOOP(R.string.scoopServo,scoopMin,scoopMax),
-        ARM_SLIDE(R.string.armServoSlide,slideMin,slideMax);
+        ARM_SLIDE(R.string.armServoSlide,slideMin,slideMax);//NOTE: HI-TEC SERVO, Range only 0.5-1
         private int myNameID;
         private double myMin;
         private double myMax;
@@ -267,6 +306,15 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     }
 
+    protected void setDriveForArcade(float x, float y)
+    {
+        double left = Range.clip(y-x,-1.0,1.0);
+        double right = Range.clip(-x-y,-1.0,1.0);
+        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
+        setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
+        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
+        setPower(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), right);
+    }
     protected void setDriveForTank(float left, float right)
     {
         setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
@@ -325,10 +373,10 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected void setHingePower(float power)
     {
-        if (power > 0)
+        if (power < 0)
         {
-            setPower(RuckusMotorName.WINCH_MAIN.getMotorName(), power * winchMainRaisePower);
-            setPower(RuckusMotorName.WINCH_ARM.getMotorName(), power * winchArmRaisePower);
+            setPower(RuckusMotorName.WINCH_MAIN.getMotorName(), -power * winchMainRaisePower);
+            setPower(RuckusMotorName.WINCH_ARM.getMotorName(), -power * winchArmRaisePower);
         }
         else
         {
@@ -382,7 +430,44 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     {
         super.incrementMotorToPosition(RuckusMotorName.MAIN_ARM.getMotorName(),Math.round( armIncrementRatio*power));
     }
+    protected void enableMotorMaintainPosition(RuckusMotorName motorName, Pid.PIDConstants constants)
+    {
+        motorName.activateMaintainPosition(constants,time);
+        setMotorType(motorName.getMotorName(),DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    protected void disableMotorMaintainPosition(RuckusMotorName motorName)
+    {
+        motorName.deactivateMaintainPosition();
+    }
+    protected void updateMotorMaintainPosition(RuckusMotorName motor)
+    {
+        double power = (motor.updateMaintainPid(getMotorPosition(motor.getMotorName()),time));
+        telemetry.addData("Motor " + motor.getName() + " Pid Updated:", power);
+        setPower(motor.getMotorName(),power);
 
+    }
+    protected void setMotorMaintainPosition(RuckusMotorName motor, int newTargetPosition)
+    {
+        motor.setMotorTargetPosition(newTargetPosition);
+    }
+    protected void enableMainArmMaintainPid()
+    {
+        enableMotorMaintainPosition(RuckusMotorName.MAIN_ARM,ARM_PID_CONSANTS);
+        telemetry.addData("Status", "Pid Initialized");
+    }
+
+    @Override
+    public void loop()
+    {
+        for(RuckusMotorName motor : RuckusMotorName.values())
+        {
+            if(motor.getActivated() && motor.getMaintainPositionActive())
+            {
+                updateMotorMaintainPosition(motor);
+            }
+        }
+        super.loop();
+    }
     //whether the intake is state based or continuous
     protected boolean intakeContinuous = false;
     //current state of the intakeServos
@@ -392,10 +477,11 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private static double intakePower = 0.8;
 
     //powers of the winch's main and arm motors when raising/lowering
-    private static double winchMainRaisePower = -1, winchArmRaisePower = 1, winchMainLowerPower = -1, winchArmLowerPower = 0.25;
+    private static double winchMainRaisePower = 1, winchArmRaisePower = 1, winchMainLowerPower = -1, winchArmLowerPower = -0.7;
 
     private static double scoopMin = 0.2, scoopMax = 0.8;
-    private static double slideMin = 0.1, slideMax = 0.7;
+    private static double slideMin = 0.55, slideMax = 0.85;
 
     private static int armIncrementRatio = 50;
+    private static final Pid.PIDConstants ARM_PID_CONSANTS = new Pid.MotorPIDConstants(0.01,0.1,0.7,-280,280);
 }

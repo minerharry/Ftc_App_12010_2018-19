@@ -1,21 +1,30 @@
 package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
+import com.disnodeteam.dogecv.CameraViewDisplay;
+import com.disnodeteam.dogecv.DogeCV;
+import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.base.StateMachine;
 import org.firstinspires.ftc.teamcode.base.StateMachine.*;
 import org.firstinspires.ftc.teamcode.control.Pid;
 
 import java.util.ArrayList;
 
-@Autonomous(name="Autonomous State Machine Test")
+@TeleOp(name="Autonomous Test debugging")
 public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
     StateMachine myMachine = new StateMachine();
-
+    boolean started = false;
+    State startingState;
     @Override
     public void init() {
         super.init();
@@ -25,26 +34,26 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         templates.add(templateA);
         templates.add(templateB);
         State last = new DisplayStringForDuration(7, "End", State.END);*/
-        State nested3rd = new DisplayStringForDuration(10,"it's states all the way down!",State.END);
-        State state1b = new DisplayStringForDuration(5,"Displayer 1b", State.END);
-        State state2b = new DisplayStringForDuration(10,"Displayer 2b", nested3rd);
-        State state3b = new DisplayStringForDuration(15,"Displayer 3b", State.END);
-        State state1 = new DisplayStringForDuration(15,"Displayer 1", state1b);
-        State state2 = new DisplayStringForDuration(10,"Displayer 2", state2b);
-        State state3 = new DisplayStringForDuration(5,"Displayer 3", state3b);
-        ArrayList<State> states = new ArrayList<>();
-        states.add(state1);states.add(state2);states.add(state3);
-        State next = new SyncedParallelStateGroup(State.END,states);
-
-        myMachine.startMachine(next);
+        for (RuckusMotorName motorName : RuckusRobotHardware.tankMotors)
+        {
+            setMotorType(motorName.getMotorName(),DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+        startingState = new RotateRobotByEncoders(2000, PidType.TYPE_DEFAULT, 0.1, State.END);
 
     }
 
 
     @Override
     public void loop() {
+        if (!started)
+        {
+            myMachine.startMachine(startingState);
+            started = true;
+        }
         super.loop();
-        myMachine.updateMachine();
+        if  (!gamepad1.a) {
+            myMachine.updateMachine();
+        }
     }
 
     public static ArrayList<LinearState> assembleTemplates(ArrayList<LinearStateTemplate> templates, State nextState) {
@@ -60,6 +69,55 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
 
     /**
+     * Uses either RotateByEncoder or RotateByGyro to turn left and right and find the gold mineral using DogeCV's
+     * GoldAlignDetector
+     * Will
+     */
+    private class ScanUntilGoldAligned implements State {
+        private State left;
+        private State middle;
+        private State right;
+        private GoldAlignDetector detector;
+        private RotateRobotByEncoders rotator;
+        public ScanUntilGoldAligned(double fov, State leftState, State middleState, State rightState)
+        {
+            left = leftState;
+            middle = middleState;
+            right = rightState;
+
+            detector = new GoldAlignDetector();
+            detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
+            detector.useDefaults();
+
+            // Optional Tuning
+            detector.alignSize = 100; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
+            detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
+            detector.downscale = 0.4; // How much to downscale the input frames
+
+            detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
+            //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
+            detector.maxAreaScorer.weight = 0.005;
+
+            detector.ratioScorer.weight = 5;
+            detector.ratioScorer.perfectRatio = 1.0;
+            detector.isSideways = true;
+
+            detector.enable();
+
+        }
+        public void start()
+        {
+            rotator.start();
+        }
+        public State update()
+        {
+            return null;
+        }
+
+    }
+
+
+    /**
      * Uses a custom Pid to maintain a motor at a consistent speed until some target position is reached
      * You will need to tune the Pid to get a set of variables stored in the PIDConstants class.
      * For more information about Pid please
@@ -67,11 +125,11 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
      */
     private class RunMotorToEncoderPID extends LinearState {
         private Pid myPid;
-        private MotorName myMotor;
-        private double myStartTime;
-        private double lastUpdate;
-        private double lastPosition;
-        private int myTarget;
+        private MotorName myMotor; //the motor
+        private double myStartTime; //the time the state started
+        private double lastUpdate; //the last time of the update
+        private double lastPosition; //the position of the motor at the last interval
+        private int myTarget; //the target position
         private double myTargetSpeed;
         private int myTolerance = 10;
         /** @param speed - the desired speed in encoder ticks / second**/
@@ -95,7 +153,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             double dt = time - lastUpdate;
             lastUpdate=time;
             double tempPosition = getMotorPosition(myMotor);
-            setPower(myMotor,myPid.update(myTargetSpeed,(tempPosition-lastPosition)/dt,dt));
+            setPower(myMotor,myPid.update(Math.signum(myTarget-tempPosition)*myTargetSpeed,(tempPosition-lastPosition)/dt,dt));
             lastPosition = tempPosition;
             if (Math.abs(lastPosition-myTarget) < myTolerance)
             {
@@ -105,12 +163,94 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             return this;
         }
     }
+    protected enum PidType{
+        TYPE_DEFAULT,
+        TYPE_CUSTOM,
+        TYPE_LINEAR
+    }
+
+    private class RotateRobotByGyro extends LinearState{
+        private double myTarget;
+        private double myPower;
+        private BNO055IMU imu;
+        private double myAngle;
+        private boolean modulo;
+        public RotateRobotByGyro(double target, double power, State nextState)
+        {
+            super(nextState);
+            myPower = Math.abs(power);
+            myTarget = target;
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.mode                = BNO055IMU.SensorMode.IMU;
+            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled      = true;
+            imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+            imu.initialize(parameters);
+
+        }
+
+        @Override
+        public void start() {
+            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC,AxesOrder.ZYX,AngleUnit.DEGREES);
+            double angle = angles.firstAngle;
+            angle = (angle + 360) % 360;
+            myTarget = (myTarget + 720) % 360; //ensuring both angles are within 0-360
+            double d1 = angle - myTarget; // angle between robot and target within the 0-360 domain
+            myTarget = (Math.abs(d1) > 180 ? (d1 > 0 ? myTarget + 360 : myTarget - 360) : myTarget);
+            /* if d1 is > 180, that means that the shortest angle is in the opposite direction
+            Which depends on whether angle > than mytarget (aka d1 > 0), and will increment mytarget by one 360 rotation so that
+
+            */
+        }
+
+        @Override
+        public State update() {
+            
+        }
+    }
 
     /**
-     * Basically just a state version of runToPosition; will use the default encoder to run a motor to a position
-     * using a certain power. Not recommended for smooth or specific actions; default Pid is not very
-     * well tuned. For accurate and smooth movement (ex: arm w/ weight, driving straight/in a specific way,
-     * etc.) use the RunMotorToEncoderPid state.
+     * A simple class that uses a generated parallelstategroup to run the four drive motors in the same direction by some given number of encoder ticks
+     * Positive ticks rotates counterclockwise, negative rotates clockwise
+     */
+    private class RotateRobotByEncoders extends LinearState{
+        private Pid.PIDConstants DEFAULT_TURN_PID;
+        private ParallelStateGroup motorGroup;
+        public RotateRobotByEncoders(int target, PidType type, double power, State nextState)
+        {
+            super(nextState);
+            if (type == PidType.TYPE_DEFAULT) {
+
+                State motorBL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), getMotorTargetPosition(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName()) + target, power, State.END);
+                State motorBR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), getMotorTargetPosition(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName()) + target, power, State.END);
+                State motorFL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), getMotorTargetPosition(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName()) + target, power, State.END);
+                State motorFR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), getMotorTargetPosition(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName()) + target, power, State.END);
+                ArrayList<State> states = new ArrayList<>();
+                states.add(motorBL);
+                states.add(motorBR);
+                states.add(motorFL);
+                states.add(motorFR);
+                motorGroup = new ParallelStateGroup(next,states);
+            }
+
+        }
+
+        @Override
+        public void start() {
+
+        }
+
+        @Override
+        public State update() {
+            return motorGroup;
+        }
+    }
+
+    /**
+     * Basically just a state version of setMotorTargetPosition; will use the default encoder to run a motor to a position
+     * using a certain power.
      */
     private class RunMotorToEncoderDefaultPid extends LinearState
     {
@@ -118,6 +258,8 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         private int myTarget;
         private double myPower;
         private double myTolerance = 10;
+        private double timeWithinTolerance;
+        private boolean lastWithinTolerance;
         public RunMotorToEncoderDefaultPid(MotorName motorName, int target, double power, State nextState)
         {
             super(nextState);
@@ -129,17 +271,27 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         {
             setMotorType(myMotor, DcMotor.RunMode.RUN_TO_POSITION);
             setPower(myMotor,myPower);
+            setMotorTargetPosition(myMotor,myTarget);
         }
         public State update()
         {
-            if (Math.abs(getMotorPosition(myMotor)-myTarget) < myTarget)
+            if (Math.abs(getMotorPosition(myMotor)-myTarget) < myTolerance)
             {
-                setMotorType(myMotor,DcMotor.RunMode.RUN_USING_ENCODER);
-                setPower(myMotor,0);
-                return next;
+                if (!lastWithinTolerance)
+                {
+                    timeWithinTolerance = time;
+                }
+                lastWithinTolerance = true;
+                if (timeWithinTolerance - time > 0.75) {
+                    setMotorType(myMotor, DcMotor.RunMode.RUN_USING_ENCODER);
+                    setPower(myMotor, 0);
+                    return next;
+                }
             }
+            telemetry.addData("Motor Running: " + myMotor.getName(), "Current Position: " + getMotorPosition(myMotor));
             return this;
         }
+
     }
     private class RunMotorToEncoderLinear extends LinearState {
         public RunMotorToEncoderLinear(State nextState, double power, int position, MotorName motorName) {

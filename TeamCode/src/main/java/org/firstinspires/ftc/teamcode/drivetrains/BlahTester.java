@@ -19,7 +19,18 @@ public class BlahTester extends OpMode {
     public void loop()
     {
         frame = (frame == 2 ? 0 : frame+1);
-        if (frame==0){servo.setPosition(gamepad1.left_stick_y/2+0.5);}
+        if (gamepad1.a)
+        {
+            servo.setPosition(0.5);
+        }
+        if (gamepad1.b)
+        {
+            servo.setPosition(1);
+        }
+        if (gamepad1.a && gamepad1.b)
+        {
+            servo.setPosition(0.75);
+        }
 
     }
 }
