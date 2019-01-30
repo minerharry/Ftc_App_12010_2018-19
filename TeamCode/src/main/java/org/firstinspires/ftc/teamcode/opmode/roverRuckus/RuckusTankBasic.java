@@ -9,11 +9,12 @@ public class RuckusTankBasic extends RuckusRobotHardware {
     boolean xPressed = false;
     @Override
     public void init() {
-        super.init();
         for (RuckusMotorName m : tankMotors)
         {
             m.activate();
         }
+        super.init();
+
     }
 
     @Override

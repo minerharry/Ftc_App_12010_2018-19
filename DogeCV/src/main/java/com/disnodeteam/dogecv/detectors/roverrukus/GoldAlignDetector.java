@@ -79,6 +79,7 @@ public class GoldAlignDetector extends DogeCVDetector {
 
         List<MatOfPoint> contoursYellow = new ArrayList<>();
         Imgproc.findContours(maskYellow, contoursYellow, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+
         Imgproc.drawContours(displayMat, contoursYellow, -1, new Scalar(230, 70, 70), 2);
 
         // Current result
@@ -94,7 +95,7 @@ public class GoldAlignDetector extends DogeCVDetector {
             Imgproc.rectangle(displayMat, rect.tl(), rect.br(), new Scalar(0, 0, 255), 2); // Draw rect
 
             // If the result is better then the previously tracked one, set this rect as the new best
-            if (score < bestDiffrence) {
+            if (score < bestDiffrence && rect.y + rect.height/2 > ((isSideways ? getAdjustedSize().width : getAdjustedSize().height) *(1-verticalMax))&&rect.y+rect.height/2 < ((isSideways ? getAdjustedSize().width : getAdjustedSize().height)*(1-verticalMin))) {
                 bestDiffrence = score;
                 bestRect = rect;
             }

@@ -10,5 +10,6 @@
     <string name="intakeServoRight">Servo_Intake_Right</string>
     <string name="armMotorMain">Motor_Arm</string>
     <string name="scoopServo">Servo_Scoop</string>
+    <string name="hub2Imu">imu</string>
     <string name="armServoSlide">Servo_Arm_Slide</string>
 </resources>

@@ -19,6 +19,7 @@ public class IMUTester extends OpMode {
     AxesOrder[] myOrders = {AxesOrder.XYZ, AxesOrder.XZY, AxesOrder.ZXY, AxesOrder.ZYX, AxesOrder.YXZ, AxesOrder.YZX};
     int myOrderIndex = 0;
     boolean a = false;
+    private boolean modulo;
     
     Orientation lastAngles = new Orientation();
     @Override
@@ -54,14 +55,30 @@ public class IMUTester extends OpMode {
         telemetry.addData(getAxesNameByAxesOrder(myOrder,1) + " angle",x);
         telemetry.addData(getAxesNameByAxesOrder(myOrder,2) + " angle",y);
         telemetry.addData(getAxesNameByAxesOrder(myOrder,3) + " angle",z);
-        globalX = (deltaX +globalX + 540) % 360 - 180;
-        globalY = (deltaY +globalY + 540) % 360 - 180;
-        globalZ = (deltaZ +globalZ + 540) % 360 - 180;
+        if (modulo) {
+            globalX = (deltaX + globalX + 540) % 360 - 180;
+
+            globalY = (deltaY + globalY + 540) % 360 - 180;
+            globalZ = (deltaZ + globalZ + 540) % 360 - 180;
+        }
+        else {
+            globalX = deltaX + globalX;
+            globalY = deltaY + globalY;
+            globalZ = deltaZ + globalZ;
+        }
         telemetry.addData("Global " + getAxesNameByAxesOrder(myOrder,1) + " angle", globalX);
         telemetry.addData("Global " + getAxesNameByAxesOrder(myOrder,2) + " angle",globalY);
         telemetry.addData("Global " + getAxesNameByAxesOrder(myOrder,3) + " angle",globalZ);
         telemetry.addData("Axes Order", myOrder);
         lastAngles = angles;
+        if (gamepad1.x)
+        {
+            modulo = true;
+        }
+        if (gamepad1.y)
+        {
+            modulo = false;
+        }
         if (gamepad1.a && !a)
         {
             myOrderIndex = (myOrderIndex == 5 ? 0 : myOrderIndex + 1);
@@ -74,7 +91,7 @@ public class IMUTester extends OpMode {
         int[] axesOrder = new int[3];
         switch (order)
         {
-            case XYX: {
+            case XYZ: {
                 int[] tempArray = {1, 2, 3};
                 axesOrder = tempArray;
                 break;

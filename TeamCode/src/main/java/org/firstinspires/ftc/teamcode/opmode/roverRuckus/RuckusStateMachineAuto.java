@@ -7,6 +7,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -18,15 +19,35 @@ import org.firstinspires.ftc.teamcode.base.StateMachine.*;
 import org.firstinspires.ftc.teamcode.control.Pid;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * A class that runs a state machine for the Rover Ruckus Challenge. State extending classes are nested here,
+ * specifically all of the ones needed for this challenge in particular. ATM, all of the states
+ * are here; ASAP: Create general class w/ states for: Motors, gyro, color sensors, etc.
+ * Order of events in a state:
+ *  --Constructor - happens before the super.init() in the main constructor - activate the objects used in a state when passed to ta
+ *     to that state's constructor, but do not reference those objects in that state's constructor
+ *  --start() - happens at the very first loop() function; have all access to hardware from the RobotHardware class
+ *  --update() - happens every frame during loop ()
+ */
 @TeleOp(name="Autonomous Test debugging")
 public class RuckusStateMachineAuto extends RuckusRobotHardware {
-
+    protected String RobotRotationGyroName = "Z angle Robot Rotation Gyro";
     StateMachine myMachine = new StateMachine();
     boolean started = false;
     State startingState;
+    Map<String,BackgroundState> backgroundStates;
     @Override
     public void init() {
+        backgroundStates = new HashMap<>();
+        for (RuckusMotorName motorName : tankMotors)
+        {
+            motorName.activate();
+        }
+        startingState = new ScanUntilGoldAligned(0,new DisplayStringForDuration(45, "Left State", State.END), new DisplayStringForDuration(45,"Middle State",State.END), new DisplayStringForDuration(45, "Right State", State.END));
+
         super.init();
         /*LinearStateTemplate templateA = new StringDurationTemplate(15, "Templated state a");
         LinearStateTemplate templateB = new StringDurationTemplate(15, "Templated state B");
@@ -38,21 +59,37 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         {
             setMotorType(motorName.getMotorName(),DcMotor.RunMode.RUN_USING_ENCODER);
         }
-        startingState = new RotateRobotByEncoders(2000, PidType.TYPE_DEFAULT, 0.1, State.END);
-
     }
 
 
     @Override
     public void loop() {
+
         if (!started)
         {
+            for (String key : backgroundStates.keySet())
+            {
+                backgroundStates.get(key).start();
+            }
             myMachine.startMachine(startingState);
             started = true;
+
         }
         super.loop();
         if  (!gamepad1.a) {
             myMachine.updateMachine();
+            for (String key : backgroundStates.keySet())
+            {
+                backgroundStates.put(key,backgroundStates.get(key).update());
+            }
+        }
+    }
+
+    @Override
+    public void stop() {
+        for (String key : backgroundStates.keySet())
+        {
+            backgroundStates.get(key).stop();
         }
     }
 
@@ -67,18 +104,139 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         return result;
     }
 
+    public String ActivateRobotRotationGyro()
+    {
+        telemetry.addData("Gyro status: ", "Background states");
+        if (backgroundStates.get(RobotRotationGyroName) == null)
+        {
+            backgroundStates.put(RobotRotationGyroName,new UpdateGyroAngle(RuckusGyroName.HUB_2_IMU,AxesOrder.ZYX));
+        }
+        return RobotRotationGyroName;
+    }
+    private class UpdateGyroAngle extends BackgroundState {
+        private AxesOrder myOrder;
+        private BNO055IMU imu;
+        private RuckusGyroName gyroName;
+        private double lastAngle;
+        private double myAngle;
+        boolean stopped = false;
+        public UpdateGyroAngle(RuckusGyroName imuName, AxesOrder order)
+        {
+            gyroName = imuName;
+            gyroName.activate();
+            myOrder = order;
+        }
+        public void start()
+        {
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.mode                = BNO055IMU.SensorMode.IMU;
+            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled      = true;
+            gyroName.setParameters(parameters);
+        }
+        public BackgroundState update()
+        {
+            imu = getGyro(gyroName.getGyroName());
+            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC,myOrder,AngleUnit.DEGREES);
+            float angle  = angles.firstAngle;
+            angle = ( angle < -180 ? angle + 360 : (angle > 180 ? angle - 360 : angle));
+            double deltaAngle = lastAngle - angle;
+            deltaAngle = ( deltaAngle < -180 ? deltaAngle + 360 : (deltaAngle > 180 ? deltaAngle - 360 : deltaAngle));
+            myAngle += deltaAngle;
+            lastAngle = angles.firstAngle;
+            if (!stopped) {
+                return this;
+            }
+            return BackgroundState.END;
+        }
+        public void resetAngle()
+        {
+            myAngle = 0;
+        }
+        public void resetAngle(double angle)
+        {
+            myAngle = angle;
+        }
+        public double getAngle()
+        {
+            return myAngle;
+        }
+    }
 
+    /**
+     * A class for testing the dogeCV and gyro implementation
+     * does a 360, constantly displaying the x coordinate of its current best gold match
+     * and its current angle
+     */
+    private class SpinForGold extends LinearState {
+        private RotateRobotByGyro rotator;
+        private GoldAlignDetector detector;
+        public SpinForGold(State nextState)
+        {
+            super(nextState);
+            rotator = new RotateRobotByGyro(360, 0.2, State.END, true);
+            detector = new GoldAlignDetector();
+            detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
+            detector.useDefaults();
+
+            // Optional Tuning
+            detector.alignSize = 100; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
+            detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
+            detector.downscale = 0.4; // How much to downscale the input frames
+
+            detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
+            //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
+            detector.maxAreaScorer.weight = 0.005;
+
+            detector.ratioScorer.weight = 5;
+            detector.ratioScorer.perfectRatio = 1.0;
+            detector.verticalMax = 0.9;
+            detector.enable();
+        }
+        @Override
+        public void start()
+        {
+            rotator.start();
+        }
+        @Override
+        public State update() {
+            telemetry.addData("Gold X Position", detector.getXPosition());
+            telemetry.addData("Current Angle", rotator.getAngle());
+            if (detector.isFound() && (detector.getXPosition() < 400 && detector.getXPosition() > 300)) {
+                telemetry.addData("Gold Found","True");
+                return next;
+            }
+            State tempState = rotator.update();
+            if (tempState == State.END)
+            {
+                return next;
+            }
+            return this;
+        }
+    }
     /**
      * Uses either RotateByEncoder or RotateByGyro to turn left and right and find the gold mineral using DogeCV's
      * GoldAlignDetector
-     * Will
+     * Will return one of three statepaths provided in constructor, and will use the general FOV (in degrees in front of the robot)
+     * to judge how far it should turn
+     * should start facing the middle of the three minerals at a set distance away from the line (which is a constant
+     * START_DISTANCE in inches to the center of rotation of the robot, and uses trig about the distance
+     * between each mineral (14.5 in)
      */
     private class ScanUntilGoldAligned implements State {
         private State left;
         private State middle;
         private State right;
         private GoldAlignDetector detector;
-        private RotateRobotByEncoders rotator;
+        private RotateRobotByGyro rotator;
+        private final double MINERAL_SPACING = 14.5; //space between each mineral in inches
+        private final double DISTANCE_TO_LINE = 24; //average distance from robot to center mineral in inches after landing
+        double turnExtent = 45.0;
+        int rotatePhase;
+        double firstAngle;
+        boolean[] detection;
+
         public ScanUntilGoldAligned(double fov, State leftState, State middleState, State rightState)
         {
             left = leftState;
@@ -100,18 +258,73 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
             detector.ratioScorer.weight = 5;
             detector.ratioScorer.perfectRatio = 1.0;
-            detector.isSideways = true;
-
+            detector.verticalMax = 0.9;
             detector.enable();
+            turnExtent = Math.atan2(MINERAL_SPACING,DISTANCE_TO_LINE)*180/Math.PI + 15;
+            telemetry.addData("Turn Extent",turnExtent);
+            RotateRobotByGyro rotator3 = new RotateRobotByGyro(-turnExtent, 0.6, State.END, true);
+            RotateRobotByGyro rotator2 = new RotateRobotByGyro(turnExtent*2, 0.6, rotator3, true);
+            rotator = new RotateRobotByGyro(-turnExtent, 0.8, rotator2,true);
 
         }
         public void start()
         {
             rotator.start();
+            firstAngle = ((UpdateGyroAngle) backgroundStates.get(RobotRotationGyroName)).getAngle();
         }
         public State update()
         {
-            return null;
+            State tempState = rotator.update();
+            if(tempState != rotator)
+            {
+                rotatePhase++;
+                switch (rotatePhase)
+                {
+                    case 1:
+                    {
+                        telemetry.addData("Turn Status","Left Completed");
+                        break;
+                    }
+                    case 2:
+                    {
+                        telemetry.addData("Turn Status", "Right completed");
+                    }
+                    case 3:
+                    {
+                        telemetry.addData("Turn Status", "Middle Completed");
+                    }
+
+                }
+            }
+            if (tempState == State.END)
+            {
+                telemetry.addData("Gold", "Not Found");
+                return middle;
+            }
+            rotator = (RotateRobotByGyro) tempState;
+            if (detector.getAligned())
+            {
+                double angle = rotator.getAngle();
+                telemetry.addData("Gold", "Found");
+                if(angle< -15)
+                {
+                    rotator.stop();
+                    return left;
+                }
+                else if(angle >= -15 && angle <= 15)
+                {
+                    rotator.stop();
+                    return middle;
+                }
+                else
+                {
+                    rotator.stop();
+                    return right;
+                }
+
+            }
+            telemetry.addData("Gold","Still Searching");
+            return this;
         }
 
     }
@@ -138,12 +351,12 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             super(nextState);
             myPid = new Pid(constants);
             myMotor = motorName;
-            setMotorType(myMotor, DcMotor.RunMode.RUN_USING_ENCODER);
             myTarget=target;
             myTargetSpeed = speed;
         }
         public void start()
         {
+            setMotorType(myMotor, DcMotor.RunMode.RUN_USING_ENCODER);
             myStartTime = time;
             lastUpdate=myStartTime;
             lastPosition = getMotorPosition(myMotor);
@@ -169,45 +382,98 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         TYPE_LINEAR
     }
 
+    /**
+     * State that will rotate the robot using the revhub built in IMU.
+     * Will either increment by an amount or set it to an angle, using the global angle since the last reset;
+     * Uses a background state to get the Z angle
+     */
     private class RotateRobotByGyro extends LinearState{
+        private double myTolerance = 6; //gyro tolerance in degrees
         private double myTarget;
         private double myPower;
-        private BNO055IMU imu;
-        private double myAngle;
-        private boolean modulo;
-        public RotateRobotByGyro(double target, double power, State nextState)
+        private String gyroBackgroundName;
+        private UpdateGyroAngle gyro;
+
+        public double getAngle() {
+            return gyro.getAngle();
+        }
+        public void stop() {
+            for(RuckusMotorName motor : tankMotors)
+            {
+                setMotorTargetPosition(motor.getMotorName(),getMotorTargetPosition(motor.getMotorName()));
+                setPower(motor.getMotorName(),0);
+            }
+        }
+
+        private boolean incrementTarget;
+        public RotateRobotByGyro(double target, double power, State nextState, boolean increment)
         {
             super(nextState);
             myPower = Math.abs(power);
             myTarget = target;
-            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-            parameters.mode                = BNO055IMU.SensorMode.IMU;
-            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-            parameters.loggingEnabled      = true;
-            imu = hardwareMap.get(BNO055IMU.class, "imu");
-
-            imu.initialize(parameters);
-
+            incrementTarget = increment;
+            gyroBackgroundName = ActivateRobotRotationGyro();
+            gyro = ((UpdateGyroAngle) backgroundStates.get(gyroBackgroundName));
         }
 
         @Override
         public void start() {
-            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC,AxesOrder.ZYX,AngleUnit.DEGREES);
-            double angle = angles.firstAngle;
-            angle = (angle + 360) % 360;
-            myTarget = (myTarget + 720) % 360; //ensuring both angles are within 0-360
-            double d1 = angle - myTarget; // angle between robot and target within the 0-360 domain
-            myTarget = (Math.abs(d1) > 180 ? (d1 > 0 ? myTarget + 360 : myTarget - 360) : myTarget);
+            for (RuckusMotorName name : tankMotors)
+            {
+                setMotorType(name.getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
+                setPower(name.getMotorName(), myPower);
+                setMotorTargetPosition(name.getMotorName(),getMotorPosition(name.getMotorName()));
+            }
+            double angle = getAngle();
+            if (!incrementTarget) {
+                angle = (angle + 360) % 360;
+                myTarget = (myTarget + 720) % 360; //ensuring both angles are within 0-360
+                double d1 = angle - myTarget; // angle between robot and target within the 0-360 domain
+                myTarget = (Math.abs(d1) > 180 ? (d1 > 0 ? myTarget + 360 : myTarget - 360) : myTarget);
+            }
+            else
+            {
+                myTarget = angle + myTarget;
+            }
+            gyro.resetAngle(angle);
             /* if d1 is > 180, that means that the shortest angle is in the opposite direction
-            Which depends on whether angle > than mytarget (aka d1 > 0), and will increment mytarget by one 360 rotation so that
+            Which depends on whether angle > than mytarget (aka d1 > 0), and will increment mytarget by one 360 rotation so that the direction is then shorter
+
 
             */
         }
 
         @Override
         public State update() {
-            
+
+            telemetry.addData("current Position: ", getAngle());
+            telemetry.addData("Target Position:", myTarget);
+
+
+            if (Math.abs(getAngle() - myTarget) < myTolerance)
+            {
+                for(RuckusMotorName motor : tankMotors)
+                {
+                    setMotorTargetPosition(motor.getMotorName(),getMotorTargetPosition(motor.getMotorName()));
+                    setPower(motor.getMotorName(),0);
+                }
+                return next;
+            }
+            if (getAngle() - myTarget < 0)
+            {
+                for (RuckusMotorName motor : tankMotors)
+                {
+                    setMotorTargetPosition(motor.getMotorName(),getMotorTargetPosition(motor.getMotorName())-20000);
+                }
+            }
+            if (getAngle() - myTarget > 0)
+            {
+                for (RuckusMotorName motor : tankMotors)
+                {
+                    setMotorTargetPosition(motor.getMotorName(),getMotorTargetPosition(motor.getMotorName())+20000);
+                }
+            }
+            return this;
         }
     }
 

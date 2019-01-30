@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
 import android.content.res.Resources;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
@@ -20,7 +21,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     protected static RuckusMotorName[] armMotor = {RuckusMotorName.MAIN_ARM};
     protected static RuckusCRServoName[] intakeServos = {RuckusCRServoName.INTAKE_LEFT,RuckusCRServoName.INTAKE_RIGHT};
     protected static RuckusServoName[] armSlideServo = {RuckusServoName.ARM_SLIDE};
-
+    protected static RuckusRobotHardware instance;
 
     public enum RuckusMotorName {
         DRIVE_FRONT_LEFT (R.string.frontLeft),
@@ -168,6 +169,67 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     }
 
+    public enum RuckusGyroName
+    {
+        HUB_2_IMU(R.string.hub2Imu);
+
+        private int myNameID;
+        private String myName;
+        private GyroName myGyroName;
+        private boolean isActivated = false;
+        private BNO055IMU.Parameters myParameters;
+        RuckusGyroName(int nameID)
+        {
+            myNameID = nameID;
+        }
+        public void initRobot(HardwareMap map) {
+            myName = map.appContext.getResources().getString(myNameID);
+            myGyroName = new GyroName(myName);
+        }
+        public boolean getActivated()
+        {
+            return isActivated;
+        }
+        public void activate()
+        {
+            isActivated = true;
+
+        }
+        public void setParameters(BNO055IMU.Parameters parameters)
+        {
+            if (!(myParameters == parameters)) {
+                instance.initGyroParameters(myGyroName, parameters);
+            }
+            myParameters = parameters;
+        }
+        String getName()
+        {
+            if(myName == null)
+            {
+                throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
+            }
+            return myName;
+
+        }
+        GyroName getGyroName()
+        {
+            if(myName == null)
+            {
+                throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
+            }
+            return myGyroName;
+
+        }
+        public static void initRobotGyros(HardwareMap map)
+        {
+            for(RuckusGyroName name : RuckusGyroName.values())
+            {
+                name.initRobot(map);
+            }
+        }
+
+    }
+
     public enum RuckusServoName
     {
         SCOOP(R.string.scoopServo,scoopMin,scoopMax),
@@ -289,12 +351,30 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         return names;
     }
 
+    @Override
+    public ArrayList<GyroName> getGyros() {
+        ArrayList<GyroName> names = new ArrayList<GyroName>();
+        for(RuckusRobotHardware.RuckusGyroName name : RuckusRobotHardware.RuckusGyroName.values())
+        {
+            if (name.getActivated())
+                names.add(name.getGyroName());
+        }
+        telemetry.addData("GetGyros name:", names);
+        return names;
+    }
 
+
+    public RuckusRobotHardware()
+    {
+        instance = this;
+    }
     @Override
     public void init() {
         RuckusMotorName.initRobotMotors(hardwareMap);
         RuckusServoName.initRobotServos(hardwareMap);
         RuckusCRServoName.initRobotCRServos(hardwareMap);
+        RuckusGyroName.initRobotGyros(hardwareMap);
+
         super.init();
         for (RuckusServoName name : RuckusServoName.values())
         {

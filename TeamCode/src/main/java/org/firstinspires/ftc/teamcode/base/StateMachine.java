@@ -36,7 +36,7 @@ public class StateMachine {
          *
          * @return The next state to run.
          */
-        public State update();
+        public <T extends State> T update();
         public static final State END = new State() {
             @Override
             public void start() {
@@ -58,8 +58,24 @@ public class StateMachine {
                 next = nextState;
             }
         }
-        public static abstract class BranchingState {
+        public static abstract class BackgroundState implements State{
+        public abstract BackgroundState update();
+        private boolean stopped = false;
+        public void stop()
+        {
+            stopped = true;
+        }
+        protected static final BackgroundState END = new BackgroundState() {
+            @Override
+            public BackgroundState update() {
+                return this;
+            }
 
+            @Override
+            public void start() {
+
+            }
+        };
         }
 
 

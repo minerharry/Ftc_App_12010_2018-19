@@ -31,7 +31,9 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
     private Size adjustedSize;
     private Mat workingMat = new Mat();
     public double maxDifference = 10;
-    public boolean isSideways = true;
+    public boolean isSideways = false; //added by Harrison Truscott; makes image function in landscape mode
+    public double verticalMax = 1.0;
+    public double verticalMin = 0.0; //these two added by Harrison Truscott; represent, in percentage (0.0-1.0), the amount of the image to be considered in scoring
 
     public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.BALANCED;
     public double downscale = 0.5;

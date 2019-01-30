@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode;
 import android.content.res.Resources;
 import android.util.TypedValue;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -60,13 +61,40 @@ public abstract class RobotHardware extends OpMode {
 
     }
 
-    // The motors on the robot.
-    /*protected enum MotorName {
-        DRIVE_FRONT_LEFT,
-        DRIVE_FRONT_RIGHT,
-        DRIVE_BACK_LEFT,
-        DRIVE_BACK_RIGHT,
-    }*/
+    public static class GyroName {
+        private String myName;
+
+        public GyroName(String name)
+        {
+            myName = name;
+        }
+        public String getName()
+        {
+            return myName;
+        }
+    }
+
+
+    /**
+     * Initializes a BNO055IMU with set parameters
+     * @param gyro the gyro to initialize
+     * @param parameters parameters with which to init the IMU
+     */
+    protected void initGyroParameters(GyroName gyro, BNO055IMU.Parameters parameters)
+    {
+        if (allGyros == null)
+        {
+            telemetry.addData("Error:", "Attempted to set Gyro " + gyro.getName() + " Parameters before activated");
+            return;
+        }
+        BNO055IMU g = allGyros.get(gyro);
+        if (g == null) {
+            telemetry.addData("Gyro Missing", gyro.getName());
+        } else {
+            g.initialize(parameters);
+        }
+    }
+
 
     /**
      * Sets the power of the motor.
@@ -105,7 +133,7 @@ public abstract class RobotHardware extends OpMode {
     }
 
     /**
-     * Rotates motor some number of encoder ticks from its target position
+     * Rotates motor some number of encoder ticks from its current target position
      * @param motor the motor to modify - needs to be in mode runToPosition
      * @param increment increment in encoder ticks
      */
@@ -184,6 +212,7 @@ public abstract class RobotHardware extends OpMode {
             return myName;
         }
     }
+
     public static class CRServoName {
         private String myName;
 
@@ -322,7 +351,7 @@ public abstract class RobotHardware extends OpMode {
             try {
                 allMotors.put(m,hardwareMap.get(DcMotor.class, m.getName()));
             } catch (Exception e) {
-                telemetry.addData("Motor Missing", m.getName());
+                telemetry.addData("Motor Missing from getMotors", m.getName());
                 allMotors.put(m,null);
             }
         }
@@ -348,6 +377,21 @@ public abstract class RobotHardware extends OpMode {
             }
         }
 
+        telemetry.addData("Gyro Status:", "Adding");
+        allGyros = new HashMap<GyroName,BNO055IMU>();
+        for (GyroName s : getGyros()) {
+            try {
+                telemetry.addData("Gyro Status:", "Name: " + s.getName());
+
+                allGyros.put(s,hardwareMap.get(BNO055IMU.class,
+                        s.getName()));
+
+            } catch (Exception e) {
+                telemetry.addData("Gyro Missing", s.getName());
+                allGyros.put(s,null);
+            }
+        }
+
         allCRServos = new HashMap<CRServoName,CRServo>();
         for (CRServoName s : getCRServos()) {
             try {
@@ -358,6 +402,8 @@ public abstract class RobotHardware extends OpMode {
             }
 
         }
+
+
       /*  raiseJewelArm();
         centerJewelArm();*/
     }
@@ -365,6 +411,11 @@ public abstract class RobotHardware extends OpMode {
     //return configuration-specific list of motors
     public ArrayList<MotorName> getMotors() {
         return new ArrayList<MotorName>();
+    }
+
+    //return configuration-specific list of motors
+    public ArrayList<GyroName> getGyros() {
+        return new ArrayList<GyroName>();
     }
 
     //return configuration-specific list of servos
@@ -398,9 +449,40 @@ public abstract class RobotHardware extends OpMode {
         }
     }
 
+    /**
+     * A function to directly get the gyro object from the robot. Different from other hardware
+     * represented in this class because it is more complicated to mess with and benefits from easier
+     * control over the BNO055IMU, but ideally all of those will have methods in this class
+     * @param name
+     * @return the imu from memory
+     */
+    protected BNO055IMU getGyro(GyroName name)
+    {
+        boolean broken = false;
+        if (allGyros == null)
+        {
+            telemetry.addData("Error:",  "All Gyrps == null");
+            broken = true;
+        }
+        if (name == null)
+        {
+            telemetry.addData("Error:","GyroName == null");
+            broken = true;
+        }
+        if (!broken) {
+            BNO055IMU imu = allGyros.get(name);
+            if (imu == null) {
+                telemetry.addData("Gyro Missing:", name.getName());
+                return null;
+            } else
+                return imu;
+        }
+        return null;
+    }
     // All motors on the robot, in order of MotorName.
     private Map<MotorName,DcMotor> allMotors;
-
+    // All motors on the robot, in order of MotorName.
+    private Map<GyroName, BNO055IMU> allGyros;
     // All servos on the robot, in order of ServoName.
     private Map<ServoName,Servo> allServos;
     // All CRServos on the robot, in order of ServoName.
