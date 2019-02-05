@@ -197,6 +197,14 @@ public class GoldAlignDetector extends DogeCVDetector {
     }
 
     /**
+     * Returns the center x position of the camera frame
+     * @return the center position - alignSize/2
+     */
+    public double getAlignCenter()
+    {
+        return (getAdjustedSize().width / 2) + alignPosOffset;
+    }
+    /**
      * Returns if the gold element is aligned
      * @return if the gold element is alined
      */

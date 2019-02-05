@@ -21,6 +21,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     protected static RuckusMotorName[] armMotor = {RuckusMotorName.MAIN_ARM};
     protected static RuckusCRServoName[] intakeServos = {RuckusCRServoName.INTAKE_LEFT,RuckusCRServoName.INTAKE_RIGHT};
     protected static RuckusServoName[] armSlideServo = {RuckusServoName.ARM_SLIDE};
+    protected static RuckusMotorName[] linearSlideMotor = {RuckusMotorName.CLIMB_SLIDE};
     protected static RuckusRobotHardware instance;
 
     public enum RuckusMotorName {
@@ -30,21 +31,22 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         DRIVE_BACK_RIGHT (R.string.backRight),
         WINCH_MAIN(R.string.winchMotorMain),
         WINCH_ARM(R.string.winchMotorArm),
-        MAIN_ARM(R.string.armMotorMain);
+        MAIN_ARM(R.string.armMotorMain),
+        CLIMB_SLIDE(R.string.linearSlide);
 
-        private int myNameID;
-        private String myName;
-        private MotorName myMotorName;
-        private boolean isActivated = false;
-        private boolean modeMaintainPos = false;
-        private Pid myMaintainPid = null;
-        private int myMaintainTargetPosition;
-        private double pidLastUpdate = -1;
+        private int myNameID; //The R.id for the motorName
+        private String myName; //The name of the component; only defined after initRobot()
+        private MotorName myMotorName; //The MotorName that contains the name of the hardware piece
+        private boolean isActivated = false; //whether the hardware is activated and will be initialized
+        private boolean modeMaintainPos = false; //whether the motor will attempt to maintain its position
+        private Pid myMaintainPid = null; // the PID used to maintain the arm at a certain point
+        private int myMaintainTargetPosition; //the target at which the motor is to maintain its position
+        private double pidLastUpdate = -1; //the last update of the PID
 
         RuckusMotorName(int nameID) {
             myNameID = nameID;
-
         }
+
         public void initRobot(HardwareMap map)
         {
             myName = map.appContext.getResources().getString(myNameID);
