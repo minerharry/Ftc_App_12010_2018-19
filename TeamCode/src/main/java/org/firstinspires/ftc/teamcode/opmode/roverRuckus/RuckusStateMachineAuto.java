@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
 import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
+import com.disnodeteam.dogecv.detectors.DogeCVDetector;
 import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -50,6 +51,8 @@ Rover Ruckus Autonomous Plans and Routes:
 @TeleOp(name="Autonomous Test debugging")
 public class RuckusStateMachineAuto extends RuckusRobotHardware {
     protected String RobotRotationGyroName = "Z angle Robot Rotation Gyro";
+    protected String RobotGoldDetectorName = "Gold Detector";
+
     StateMachine myMachine = new StateMachine();
     boolean started = false;
     State startingState;
@@ -61,12 +64,12 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         {
             motorName.activate();
         }
-        startingState = new PointTowardsGold(0.1,20, State.END); //new ScanUntilGoldAligned(0,new DisplayStringForDuration(45, "Left State", State.END), new DisplayStringForDuration(45,"Middle State",State.END), new DisplayStringForDuration(45, "Right State", State.END));
-      /*  double turnExtent = 50;
+        startingState = new ScanUntilGoldAligned(0, new PointTowardsGold(0.1,20, State.END),new PointTowardsGold(0.1,20, State.END),new PointTowardsGold(0.1,20, State.END)); //new ScanUntilGoldAligned(0,new DisplayStringForDuration(45, "Left State", State.END), new DisplayStringForDuration(45,"Middle State",State.END), new DisplayStringForDuration(45, "Right State", State.END));
+       /* double turnExtent = 45;
         RotateRobotByGyro rotator3 = new RotateRobotByGyro(-turnExtent, 0.6, State.END, true);
-        RotateRobotByGyro rotator2 = new RotateRobotByGyro(turnExtent*2, 0.6, rotator3, true);
-        startingState = new RotateRobotByGyro(-turnExtent, 0.6, rotator2,true);*/
-        super.init();
+            RotateRobotByGyro rotator2 = new RotateRobotByGyro(turnExtent*2, 0.6, rotator3, true);
+            startingState = new RotateRobotByGyro(-turnExtent, 0.6, rotator2,true);
+        */super.init();
         /*LinearStateTemplate templateA = new StringDurationTemplate(15, "Templated state a");
         LinearStateTemplate templateB = new StringDurationTemplate(15, "Templated state B");
         ArrayList<LinearStateTemplate> templates = new ArrayList<>();
@@ -125,6 +128,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         return result;
     }
 
+
     public String ActivateRobotRotationGyro()
     {
         telemetry.addData("Gyro status: ", "Background states");
@@ -134,13 +138,21 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         }
         return RobotRotationGyroName;
     }
+    public String ActivateRobotGoldDetector()
+    {
+        telemetry.addData("Detector status", "Background states");
+        if (backgroundStates.get(RobotGoldDetectorName) == null)
+        {
+            backgroundStates.put(RobotGoldDetectorName,new RunDogeCVGoldAlignDetector(0,0.9));
+        }
+        return RobotGoldDetectorName;
+    }
     private class UpdateGyroAngle extends BackgroundState {
         private AxesOrder myOrder;
         private BNO055IMU imu;
         private RuckusGyroName gyroName;
         private double lastAngle;
         private double myAngle;
-        boolean stopped = false;
         public UpdateGyroAngle(RuckusGyroName imuName, AxesOrder order)
         {
             gyroName = imuName;
@@ -184,19 +196,10 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             return myAngle;
         }
     }
-
-    /**
-     * A class for testing the dogeCV and gyro implementation
-     * does a 360, constantly displaying the x coordinate of its current best gold match
-     * and its current angle
-     */
-    private class SpinForGold extends LinearState {
-        private RotateRobotByGyro rotator;
+    private class RunDogeCVGoldAlignDetector extends BackgroundState {
         private GoldAlignDetector detector;
-        public SpinForGold(State nextState)
+        public RunDogeCVGoldAlignDetector(double minY, double maxY)
         {
-            super(nextState);
-            rotator = new RotateRobotByGyro(360, 0.2, State.END, true);
             detector = new GoldAlignDetector();
             detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
             detector.useDefaults();
@@ -212,8 +215,54 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
             detector.ratioScorer.weight = 5;
             detector.ratioScorer.perfectRatio = 1.0;
-            detector.verticalMax = 0.9;
+            detector.verticalMax = maxY;
+            detector.verticalMin = minY;
             detector.enable();
+        }
+        public void start()
+        {
+        }
+        public BackgroundState update()
+        {
+            if (!stopped) return this;
+            return BackgroundState.END;
+        }
+        public double getAlignCenter()
+        {
+            return detector.getAlignCenter();
+        }
+        public double getXPosition()
+        {
+            return detector.getXPosition();
+        }
+        public boolean getAligned()
+        {
+            return detector.getAligned();
+        }
+        public boolean isFound()
+        {
+            return detector.isFound();
+        }
+        public void stop()
+        {
+            detector.enable();
+            stopped = true;
+        }
+    }
+
+    /**
+     * A class for testing the dogeCV and gyro implementation
+     * does a 360, constantly displaying the x coordinate of its current best gold match
+     * and its current angle
+     */
+    private class SpinForGold extends LinearState {
+        private RotateRobotByGyro rotator;
+        private RunDogeCVGoldAlignDetector detector;
+        public SpinForGold(State nextState)
+        {
+            super(nextState);
+            rotator = new RotateRobotByGyro(360, 0.2, State.END, true);
+            detector = (RunDogeCVGoldAlignDetector)backgroundStates.get(ActivateRobotGoldDetector());
         }
         @Override
         public void start()
@@ -247,7 +296,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
     private class PointTowardsGold extends LinearState
     {
         private double myPower;
-        private GoldAlignDetector detector;
+        private RunDogeCVGoldAlignDetector detector;
         private RotateRobotByGyro rotator;
         private int myFrameTolerance;
         private int framesAligned = 0;
@@ -257,23 +306,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         {
             super(nextState);
             myPower = power;
-            detector = new GoldAlignDetector();
-            detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
-            detector.useDefaults();
-
-            // Optional Tuning
-            detector.alignSize = 180; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
-            detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
-            detector.downscale = 0.4; // How much to downscale the input frames
-
-            detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
-            //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
-            detector.maxAreaScorer.weight = 0.005;
-
-            detector.ratioScorer.weight = 5;
-            detector.ratioScorer.perfectRatio = 1.0;
-            detector.verticalMax = 0.9;
-            detector.enable();
+            detector = (RunDogeCVGoldAlignDetector)backgroundStates.get(ActivateRobotGoldDetector());
             myFrameTolerance = alignFrames;
 
         }
@@ -378,13 +411,12 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         private State left;
         private State middle;
         private State right;
-        private GoldAlignDetector detector;
+        private RunDogeCVGoldAlignDetector detector;
         private RotateRobotByGyro rotator;
         private final double MINERAL_SPACING = 14.5; //space between each mineral in inches
         private final double DISTANCE_TO_LINE = 24; //average distance from robot to center mineral in inches after landing
         double turnExtent = 45.0;
         int rotatePhase;
-        boolean[] detection;
 
         public ScanUntilGoldAligned(double fov, State leftState, State middleState, State rightState)
         {
@@ -392,28 +424,12 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             middle = middleState;
             right = rightState;
 
-            detector = new GoldAlignDetector();
-            detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
-            detector.useDefaults();
-
-            // Optional Tuning
-            detector.alignSize = 100; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
-            detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
-            detector.downscale = 0.4; // How much to downscale the input frames
-
-            detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
-            //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
-            detector.maxAreaScorer.weight = 0.005;
-
-            detector.ratioScorer.weight = 5;
-            detector.ratioScorer.perfectRatio = 1.0;
-            detector.verticalMax = 0.9;
-            detector.enable();
-            turnExtent = Math.atan2(MINERAL_SPACING,DISTANCE_TO_LINE)*180/Math.PI + 15;
+            detector = (RunDogeCVGoldAlignDetector)backgroundStates.get(ActivateRobotGoldDetector());
+            turnExtent = Math.atan2(MINERAL_SPACING,DISTANCE_TO_LINE)*180/Math.PI + 10;
             telemetry.addData("Turn Extent",turnExtent);
-            RotateRobotByGyro rotator3 = new RotateRobotByGyro(-turnExtent, 0.6, State.END, true);
-            RotateRobotByGyro rotator2 = new RotateRobotByGyro(turnExtent*2, 0.6, rotator3, true);
-            rotator = new RotateRobotByGyro(-turnExtent, 0.6, rotator2,true);
+            RotateRobotByGyro rotator3 = new RotateRobotByGyro(-turnExtent, 0.4, State.END, true);
+            RotateRobotByGyro rotator2 = new RotateRobotByGyro(turnExtent*2, 0.4, rotator3, true);
+            rotator = new RotateRobotByGyro(-turnExtent, 0.4, rotator2,true);
             ((UpdateGyroAngle) backgroundStates.get(RobotRotationGyroName)).resetAngle();
         }
         public void start()
@@ -624,15 +640,19 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             }
             if (getAngle() - myTarget < 0)
             {
+                telemetry.addData("Direction","Left");
                 for (RuckusMotorName motor : tankMotors)
                 {
                     setMotorTargetPosition(motor.getMotorName(),getMotorTargetPosition(motor.getMotorName())-20000);
+                    setPower(motor.getMotorName(),myPower);
                 }
             }
             if (getAngle() - myTarget > 0)
             {
+                telemetry.addData("Direction","Right");
                 for (RuckusMotorName motor : tankMotors)
                 {
+                    setPower(motor.getMotorName(),myPower);
                     setMotorTargetPosition(motor.getMotorName(),getMotorTargetPosition(motor.getMotorName())+20000);
                 }
             }
@@ -641,6 +661,23 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
     }
 
     /*private class DriveRobotByGyro extends LinearState {
+        private double myPower;
+        private int myTarget;
+        public DriveRobotByGyro(double power, int target, State nextState)
+        {
+            super(nextState);
+            myPower = power;
+            myTarget = target;
+        }
+        public void start()
+        {
+            for (RuckusMotorName motorName : RuckusRobotHardware.tankMotors)
+            {
+                setPower(motorName.getMotorName(),myPower);
+                setMotorType(motorName.getMotorName(), DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                setMotorType(motorName.getMotorName(), DcMotor.RunMode.RUN_USING_ENCODER);
+            }
+        }
 
     }*/
 
@@ -651,7 +688,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         private double myPower;
         private int myTarget;
         private State group;
-        public DriveRobotByEncoders(double increment, int target, double power, State next)
+        public DriveRobotByEncoders(int target, double power, State next)
         {
             super(next);
             myTarget = target;
@@ -1148,6 +1185,8 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         private float hingePower;
 
     }
+
+
 
 
 

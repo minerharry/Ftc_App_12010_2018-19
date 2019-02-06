@@ -204,4 +204,12 @@ public abstract class OpenCVPipeline implements CameraBridgeViewBase.CvCameraVie
      * @return the Mat that should be displayed to the screen; in most cases one would probably just want to return rgba
      */
     public abstract Mat processFrame(Mat rgba, Mat gray);
+    public boolean getInited()
+    {
+        return inited;
+    }
+    public boolean getInitStarted()
+    {
+        return initStarted;
+    }
 }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.roverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name="Basic Tank Drive")
 public class RuckusTankBasic extends RuckusRobotHardware {
@@ -14,7 +15,12 @@ public class RuckusTankBasic extends RuckusRobotHardware {
             m.activate();
         }
         super.init();
-
+        for (RuckusMotorName m : tankMotors)
+        {
+            setMotorType(m.getMotorName(), DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+//2230: distance to left mineral;
+//1800: distance to middle mineral;
     }
 
     @Override
@@ -26,6 +32,10 @@ public class RuckusTankBasic extends RuckusRobotHardware {
         else
         {
             setDriveForArcade(gamepad1.left_stick_x,gamepad1.left_stick_y);
+        }
+        for (RuckusMotorName name : RuckusRobotHardware.tankMotors)
+        {
+            telemetry.addData(name.getName() + " Position", getMotorPosition(name.getMotorName()));
         }
         super.loop();
         if (gamepad1.x && !xPressed)

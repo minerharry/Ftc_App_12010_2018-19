@@ -14,6 +14,11 @@ import org.firstinspires.ftc.teamcode.R;
 
 import java.util.ArrayList;
 
+/**
+ * Created and implemented by Harrison Truscott of FTC Team 12010 during the 2018-19 season
+ * For more details about game-specific robotHardware classes, see the hardwareExamples class
+ * @see org.firstinspires.ftc.teamcode.opmode.hardwareExamples.ExampleRobotHardware
+ */
 public abstract class RuckusRobotHardware extends RobotHardware {
     //The groupings of hardware parts on the robot
     protected static RuckusMotorName[] tankMotors = {RuckusMotorName.DRIVE_FRONT_LEFT, RuckusMotorName.DRIVE_BACK_RIGHT, RuckusMotorName.DRIVE_BACK_LEFT, RuckusMotorName.DRIVE_FRONT_RIGHT};
@@ -47,15 +52,19 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             myNameID = nameID;
         }
 
+        /**Generate the motor's name from xml using nameID*/
         public void initRobot(HardwareMap map)
         {
             myName = map.appContext.getResources().getString(myNameID);
             myMotorName = new RobotHardware.MotorName(myName);
         }
+        /**Specify that this motor is active and should be initialized from the hardwareMap to be used
+        during runtime*/
         public void activate()
         {
             isActivated = true;
         }
+        /**Initialize all of the motors' names from xml*/
         public static void initRobotMotors(HardwareMap map)
         {
             for (RuckusMotorName name : RuckusMotorName.values())
@@ -63,43 +72,51 @@ public abstract class RuckusRobotHardware extends RobotHardware {
                 name.initRobot(map);
             }
         }
+        /**Turn on the PID to maintain this motor's position*/
         public void activateMaintainPosition(Pid.PIDConstants constants, double startTime)
         {
             modeMaintainPos = true;
             myMaintainPid = new Pid(constants);
             pidLastUpdate = startTime;
         }
+        /**Turn off the Maintain PID*/
         public void deactivateMaintainPosition()
         {
             modeMaintainPos = false;
             myMaintainPid = null;
             pidLastUpdate = -1;
         }
+        /**Get the Maintain PID*/
         public Pid getMyMaintainPid()
         {
             return myMaintainPid;
         }
+        /**Returns whether maintain is currently on*/
         public boolean getMaintainPositionActive()
         {
             return modeMaintainPos;
         }
+        /**Update the maintain PID with the current position and the time*/
         public double updateMaintainPid(int currentPosition, double currentTime)
         {
             return myMaintainPid.update(myMaintainTargetPosition,currentPosition,currentTime-pidLastUpdate);
         }
+        /**Set the maintain target position*/
         public void setMotorTargetPosition(int targetPosition)
         {
             myMaintainTargetPosition = targetPosition;
         }
+        /**Returns the maintain target position*/
         public int getMotorTargetMaintainPosition()
         {
             return myMaintainTargetPosition;
         }
-
+        /**Returns whether the motor is activated*/
         public boolean getActivated()
         {
             return isActivated;
         }
+        /**Returns the string name associated with this motor's MotorName*/
         String getName()
         {
             if(myName == null)
@@ -108,6 +125,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             }
             return myName;
         }
+        /**Returns the motorName associated with this motor; called to interface with RobotHardware methods*/
         MotorName getMotorName()
         {
             if(myName == null)

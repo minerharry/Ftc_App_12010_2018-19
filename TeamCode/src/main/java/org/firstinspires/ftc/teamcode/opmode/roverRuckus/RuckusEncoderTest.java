@@ -15,7 +15,7 @@ public class RuckusEncoderTest extends RuckusTankBasic {
         for (RuckusMotorName m : armMotor)
         {
             m.activate();
-            setMotorType(m.getMotorName(),DcMotor.RunMode.RUN_TO_POSITION);
+            setMotorType(m.getMotorName(),DcMotor.RunMode.RUN_USING_ENCODER);
             setPower(m.getMotorName(),1.0);
         }
         for (RuckusServoName m : armSlideServo)
