@@ -8,6 +8,7 @@ Left bumper: Activate intake
 Right bumper: Deactivate intake
 Dpad up: Raise linear Slide
 Dpad down: Lower linear Slide
+
 Current GamePad (2 pad) Controls:
 Pad 1:
 Joysticks up/down - tank drive

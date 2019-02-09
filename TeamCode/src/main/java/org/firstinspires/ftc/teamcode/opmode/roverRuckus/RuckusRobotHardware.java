@@ -27,6 +27,8 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     protected static RuckusCRServoName[] intakeServos = {RuckusCRServoName.INTAKE_LEFT,RuckusCRServoName.INTAKE_RIGHT};
     protected static RuckusServoName[] armSlideServo = {RuckusServoName.ARM_SLIDE};
     protected static RuckusMotorName[] linearSlideMotor = {RuckusMotorName.CLIMB_SLIDE};
+    protected static RuckusMotorName[] intakeMotor = {RuckusMotorName.MOTOR_INTAKE};
+
     protected static RuckusRobotHardware instance;
 
     public enum RuckusMotorName {
@@ -37,7 +39,8 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         WINCH_MAIN(R.string.winchMotorMain),
         WINCH_ARM(R.string.winchMotorArm),
         MAIN_ARM(R.string.armMotorMain),
-        CLIMB_SLIDE(R.string.linearSlide);
+        CLIMB_SLIDE(R.string.linearSlide),
+        MOTOR_INTAKE(R.string.motorIntake);
 
         private int myNameID; //The R.id for the motorName
         private String myName; //The name of the component; only defined after initRobot()
@@ -128,7 +131,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         /**Returns the motorName associated with this motor; called to interface with RobotHardware methods*/
         MotorName getMotorName()
         {
-            if(myName == null)
+            if(myMotorName == null)
             {
                 throw new NullPointerException("Error: " + this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
             }
@@ -388,13 +391,17 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     {
         instance = this;
     }
-    @Override
-    public void init() {
+    public void initXML()
+    {
+        telemetry.addData("XML","Initialized");
         RuckusMotorName.initRobotMotors(hardwareMap);
         RuckusServoName.initRobotServos(hardwareMap);
         RuckusCRServoName.initRobotCRServos(hardwareMap);
         RuckusGyroName.initRobotGyros(hardwareMap);
-
+    }
+    @Override
+    public void init() {
+        initXML();
         super.init();
         for (RuckusServoName name : RuckusServoName.values())
         {
@@ -466,6 +473,11 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     }
 
+    protected void setIntakeMotorPower(float power)
+    {
+        setPower(RuckusMotorName.MOTOR_INTAKE.getMotorName(),power);
+    }
+
     protected void setArmPower(float power)
     {
         setPower(RuckusMotorName.MAIN_ARM.getMotorName(),power);
@@ -488,6 +500,15 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     protected void setIntakeType(boolean continuous)
     {
         intakeContinuous = continuous;
+    }
+
+    protected void slideLiftSlide(int ticks)
+    {
+        int targetPosition = getMotorTargetPosition(RuckusMotorName.CLIMB_SLIDE.getMotorName());
+        targetPosition += ticks;
+        targetPosition = (targetPosition < liftMin? liftMin : (targetPosition > liftMax ? liftMax : targetPosition));
+        setMotorTargetPosition(RuckusMotorName.CLIMB_SLIDE.getMotorName(),targetPosition);
+
     }
 
 
@@ -525,6 +546,12 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         setAngle(RuckusServoName.SCOOP.getServoName(),RuckusServoName.SCOOP.incrementPos(power*0.05));
         telemetry.addData("Arm slid", "Current Pos: " + RuckusServoName.SCOOP.getPos());
 
+    }
+    protected void incrementArmTargetPosition(int increment)
+    {
+        armTargetPosition += increment;
+        armTargetPosition = (armTargetPosition < armMinPosition ? armMinPosition : (armTargetPosition > armMaxPosition ? armMaxPosition : armTargetPosition));
+        setMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName(),armTargetPosition);
     }
     protected void incrementArmTargetPositionWithEncoder(float power)
     {
@@ -581,6 +608,14 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     private static double scoopMin = 0.2, scoopMax = 0.8;
     private static double slideMin = 0.55, slideMax = 0.85;
+
+    //The max and min encoder ticks of the lifter slide
+    protected static int liftMax = 26200;
+    protected static int liftMin = 20;
+
+    protected int armTargetPosition;
+    private static int armMinPosition = -20000;
+    private static int armMaxPosition = 200;
 
     private static int armIncrementRatio = 50;
     private static final Pid.PIDConstants ARM_PID_CONSANTS = new Pid.MotorPIDConstants(0.01,0.1,0.7,-280,280);

@@ -25,7 +25,7 @@ public class RuckusArmPidTest2 extends RuckusTankBasic {
                 getMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName())+
                         (int)(10*(gamepad2.left_trigger-gamepad2.right_trigger)));
         telemetry.addData("Arm Target Position", getMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName()));
-
+        getMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName());
 
 
     }

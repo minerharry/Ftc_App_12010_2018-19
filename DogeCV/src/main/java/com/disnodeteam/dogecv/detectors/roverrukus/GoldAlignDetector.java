@@ -205,6 +205,14 @@ public class GoldAlignDetector extends DogeCVDetector {
         return (getAdjustedSize().width / 2) + alignPosOffset;
     }
     /**
+     * Returns the width of the align
+     * @return the width
+     */
+    public double getAlignSize()
+    {
+        return (alignSize);
+    }
+    /**
      * Returns if the gold element is aligned
      * @return if the gold element is alined
      */
