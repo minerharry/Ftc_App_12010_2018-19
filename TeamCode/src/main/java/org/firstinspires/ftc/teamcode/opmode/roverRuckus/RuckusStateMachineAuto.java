@@ -85,7 +85,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         //State movementstate = new DriveRobotByEncoders(500,0.4,new DisplayStringForDuration( 20,"BLAH",State.END));
         //State movementstate = new RotateRobotByGyro(-10, 0.4, new DriveRobotByEncoders(87, 0.4, new RotateRobotByGyro(-90, 0.4, new DriveRobotByEncoders(231, 0.4, State.END), false)), true);
         State detectionState =
-                        new ScanUntilGoldAligned(0,new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true)), new DriveRobotByEncoders(2500,0.5,State.END), new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true)));
+                        new ScanUntilGoldAligned(0, new PointTowardsGold(0.2, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), new PointTowardsGold(0.2, 0, 10, new DriveRobotByEncoders(2500,0.5,State.END)), new PointTowardsGold(0.2, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
 
         switch (actionNumber)
         {
@@ -295,6 +295,10 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
     private class RunDogeCVGoldAlignDetector extends BackgroundState {
         private GoldAlignDetector detector;
 
+        public void SetAlignOffset(double alignOffset) {
+            detector.alignPosOffset = alignOffset;
+        }
+
         public RunDogeCVGoldAlignDetector(double minY, double maxY) {
             detector = new GoldAlignDetector();
             detector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
@@ -395,6 +399,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
      */
     private class PointTowardsGold extends LinearState {
         private double myPower;
+        private double alignOffset;
         private RunDogeCVGoldAlignDetector detector;
         private RotateRobotByGyro rotator;
         private int myFrameTolerance;
@@ -402,10 +407,12 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         private int framesMisaligned = 0;
         private int framesNotFound = 0;
 
-        public PointTowardsGold(double power, int alignFrames, State nextState) {
+        public PointTowardsGold(double power, double alignOffset, int alignFrames, State nextState) {
             super(nextState);
             myPower = power;
+            this.alignOffset = alignOffset;
             detector = (RunDogeCVGoldAlignDetector) backgroundStates.get(ActivateRobotGoldDetector());
+            detector.SetAlignOffset(alignOffset);
             myFrameTolerance = alignFrames;
 
         }
