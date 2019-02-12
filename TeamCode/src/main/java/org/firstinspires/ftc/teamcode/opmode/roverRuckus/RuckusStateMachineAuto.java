@@ -64,11 +64,14 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
     protected String RobotRotationGyroName = "Z angle Robot Rotation Gyro";
     protected String RobotGoldDetectorName = "Gold Detector";
     private static final int LIFT_ALIGN_HEIGHT = 20000;
+    private static final int TIME_WAIT_AFTER_INIT = 3;//time in seconds; mainly implemented to ensure DogeCV
     StateMachine myMachine = new StateMachine();
     boolean started = false;
     State startingState;
     Map<String, BackgroundState> backgroundStates;
     protected int actionNumber = 0;
+    private double initTime;
+
 
 
     @Override
@@ -84,9 +87,10 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         //new RotateRobotByGyro(-90,0.4,State.END,true);
         //State movementstate = new DriveRobotByEncoders(500,0.4,new DisplayStringForDuration( 20,"BLAH",State.END));
         //State movementstate = new RotateRobotByGyro(-10, 0.4, new DriveRobotByEncoders(87, 0.4, new RotateRobotByGyro(-90, 0.4, new DriveRobotByEncoders(231, 0.4, State.END), false)), true);
+       // State detectionState =
+         //               new ScanUntilGoldAligned(0, new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2500,0.5,State.END)), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
         State detectionState =
-                        new ScanUntilGoldAligned(0, new PointTowardsGold(0.2, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), new PointTowardsGold(0.2, 0, 10, new DriveRobotByEncoders(2500,0.5,State.END)), new PointTowardsGold(0.2, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
-
+                new ScanUntilGoldAligned(0,(new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), (new DriveRobotByEncoders(2500,0.5,State.END)), (new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
         switch (actionNumber)
         {
             case(0): {
@@ -106,6 +110,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
         super.init();
         myMachine = new StateMachine();
+        //startingState = new DisplayStringForDuration(20,"HELLO",State.END);
         /*LinearStateTemplate templateA = new StringDurationTemplate(15, "Templated state a");
         LinearStateTemplate templateB = new StringDurationTemplate(15, "Templated state B");
         ArrayList<LinearStateTemplate> templates = new ArrayList<>();
@@ -134,6 +139,8 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             setMotorType(motorName.getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
         }
         telemetry.addData("Init status", "complete");
+        initTime = time;
+
     }
 
     /**
@@ -143,19 +150,21 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
     @Override
     public void loop() {
 
-        if (!started) {
-            for (String key : backgroundStates.keySet()) {
-                backgroundStates.get(key).start();
-            }
-            myMachine.startMachine(startingState);
-            started = true;
+        if (time > initTime + TIME_WAIT_AFTER_INIT) {
+            if (!started) {
+                for (String key : backgroundStates.keySet()) {
+                    backgroundStates.get(key).start();
+                }
+                myMachine.startMachine(startingState);
+                started = true;
 
-        }
-        super.loop();
-        if (!gamepad1.a) {
-            myMachine.updateMachine();
-            for (String key : backgroundStates.keySet()) {
-                backgroundStates.put(key, backgroundStates.get(key).update());
+            }
+            super.loop();
+            if (!gamepad1.a) {
+                myMachine.updateMachine();
+                for (String key : backgroundStates.keySet()) {
+                    backgroundStates.put(key, backgroundStates.get(key).update());
+                }
             }
         }
     }
@@ -554,7 +563,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             }
             if (tempState == State.END) {
                 telemetry.addData("Gold", "Not Found");
-                return new DisplayStringForDuration(45, "Gold Not Found", State.END);
+                return new RotateRobotByGyro(0, 0.6, middle, false);
             }
             rotator = (RotateRobotByGyro) tempState;
             if (detector.getAligned()) {
@@ -562,13 +571,13 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                 telemetry.addData("Gold", "Found");
                 if (angle < -15) {
                     rotator.stop();
-                    return new RotateRobotByGyro(-30, 0.6, left, false);
+                    return new RotateRobotByGyro(-22, 0.6, left, false);
                 } else if (angle >= -15 && angle <= 15) {
                     rotator.stop();
                     return new RotateRobotByGyro(0, 0.6, middle, false);
                 } else {
                     rotator.stop();
-                    return new RotateRobotByGyro(30, 0.6, right, false);
+                    return new RotateRobotByGyro(27, 0.6, right, false);
                 }
 
             }

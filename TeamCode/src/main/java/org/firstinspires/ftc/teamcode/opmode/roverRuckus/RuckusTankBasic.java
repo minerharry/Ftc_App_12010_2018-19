@@ -15,10 +15,7 @@ public class RuckusTankBasic extends RuckusRobotHardware {
             m.activate();
         }
         super.init();
-        for (RuckusMotorName m : tankMotors)
-        {
-            setMotorType(m.getMotorName(), DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+
 //2230: distance to left mineral;
 //1800: distance to middle mineral;
     }
