@@ -23,7 +23,7 @@ public class RuckusGyroEncoderTester extends RuckusTankBasic {
         super.init();
         for (RuckusMotorName m : tankMotors)
         {
-            setMotorType(m.getMotorName(), DcMotor.RunMode.RUN_USING_ENCODER);
+            setMotorType(m, DcMotor.RunMode.RUN_USING_ENCODER);
         }
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.mode                = BNO055IMU.SensorMode.IMU;
@@ -40,7 +40,7 @@ public class RuckusGyroEncoderTester extends RuckusTankBasic {
         super.loop();
         for(RuckusMotorName name : tankMotors)
         {
-            telemetry.addData("Motor " + name.getName() + " Position", getMotorPosition(name.getMotorName()));
+            telemetry.addData("Motor " + name.getName() + " Position", getMotorPosition(name));
         }
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         float x  = angles.firstAngle;

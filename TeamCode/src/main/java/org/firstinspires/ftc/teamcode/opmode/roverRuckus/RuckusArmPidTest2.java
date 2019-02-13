@@ -13,19 +13,19 @@ public class RuckusArmPidTest2 extends RuckusTankBasic {
         {
             motor.activate();
         }
-        setMotorType(armMotor[0].getMotorName(),DcMotor.RunMode.RUN_TO_POSITION);
-        setPower(armMotor[0].getMotorName(),0.8);
+        setMotorType(armMotor[0],DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(armMotor[0],0.8);
 
     }
     @Override
     public void loop()
     {
         super.loop();
-        setMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName(),
-                getMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName())+
+        setMotorTargetPosition(RuckusMotorName.MAIN_ARM,
+                getMotorTargetPosition(RuckusMotorName.MAIN_ARM)+
                         (int)(10*(gamepad2.left_trigger-gamepad2.right_trigger)));
-        telemetry.addData("Arm Target Position", getMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName()));
-        getMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName());
+        telemetry.addData("Arm Target Position", getMotorTargetPosition(RuckusMotorName.MAIN_ARM));
+        getMotorTargetPosition(RuckusMotorName.MAIN_ARM);
 
 
     }

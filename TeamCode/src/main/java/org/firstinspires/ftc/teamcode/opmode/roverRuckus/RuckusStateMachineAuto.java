@@ -54,8 +54,8 @@ first detach turn degrees - -10
 detatch 1st back movement: 87
 second detach turn degrees - turn to -90
 detatch 2nd back movement: 231
-Edge mineral distance: 2230
-center mineral distance: 1800
+Edge mineral distance: 2430
+center mineral distance: 2000
 
 
  */
@@ -90,7 +90,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
        // State detectionState =
          //               new ScanUntilGoldAligned(0, new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2500,0.5,State.END)), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
         State detectionState =
-                new ScanUntilGoldAligned(0,(new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), (new DriveRobotByEncoders(2500,0.5,State.END)), (new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
+                new ScanUntilGoldAligned(0,(new DriveRobotByEncoders(2500,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), (new DriveRobotByEncoders(2300,0.5,State.END)), (new DriveRobotByEncoders(2500,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
         switch (actionNumber)
         {
             case(0): {
@@ -102,6 +102,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                 break;
             }
         }
+
        /* double turnExtent = 45;
         RotateRobotByGyro rotator3 = new RotateRobotByGyro(-turnExtent, 0.6, State.END, true);
             RotateRobotByGyro rotator2 = new RotateRobotByGyro(turnExtent*2, 0.6, rotator3, true);
@@ -136,7 +137,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         State state1 = new DisplayStringForDuration(20, "1st State", state5);
         startingState = state1;*/
         for (RuckusMotorName motorName : RuckusRobotHardware.tankMotors) {
-            setMotorType(motorName.getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
+            setMotorType(motorName, DcMotor.RunMode.RUN_TO_POSITION);
         }
         telemetry.addData("Init status", "complete");
         initTime = time;
@@ -231,7 +232,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         }
         public void start()
         {
-            liftMotor = RuckusMotorName.CLIMB_SLIDE.getMotorName();
+            liftMotor = RuckusMotorName.CLIMB_SLIDE;
             setMotorType(liftMotor, DcMotor.RunMode.RUN_TO_POSITION);
             if (increment)
             {
@@ -428,9 +429,9 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
         public void start() {
             for (RuckusMotorName motor : tankMotors) {
-                setMotorType(motor.getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
-                setPower(motor.getMotorName(), myPower);
-                setMotorTargetPosition(motor.getMotorName(), getMotorPosition(motor.getMotorName()));
+                setMotorType(motor, DcMotor.RunMode.RUN_TO_POSITION);
+                setPower(motor, myPower);
+                setMotorTargetPosition(motor, getMotorPosition(motor));
             }
         }
 
@@ -439,8 +440,8 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                 telemetry.addData("Gold", "Aligned, frames: " + framesAligned);
 
                 for (RuckusMotorName motor : tankMotors) {
-                    setMotorTargetPosition(motor.getMotorName(), getMotorTargetPosition(motor.getMotorName()));
-                    setPower(motor.getMotorName(), 0);
+                    setMotorTargetPosition(motor, getMotorTargetPosition(motor));
+                    setPower(motor, 0);
                 }
                 framesAligned = (framesAligned <= 0 ? 1 : framesAligned + 1);
                 framesMisaligned = 0;
@@ -457,7 +458,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                     framesAligned = 0;
                 }
                 for (RuckusMotorName motor : tankMotors) {
-                    setPower(motor.getMotorName(), myPower);
+                    setPower(motor, myPower);
                 }
 
             }
@@ -468,8 +469,8 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                 }
                 if (framesNotFound >= myFrameTolerance) {
                     for (RuckusMotorName motor : tankMotors) {
-                        setMotorTargetPosition(motor.getMotorName(), getMotorTargetPosition(motor.getMotorName()));
-                        setPower(motor.getMotorName(), 0);
+                        setMotorTargetPosition(motor, getMotorTargetPosition(motor));
+                        setPower(motor, 0);
                     }
                     telemetry.addData("Status", "Gold Not Found");
                     return next;
@@ -483,15 +484,15 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             if (detector.getXPosition() - detector.getAlignCenter() < 0) {
                 telemetry.addData("Gold Position1", "Left");
                 for (RuckusMotorName motor : tankMotors) {
-                    setPower(motor.getMotorName(), percentMisaligned * myPower);
-                    setMotorTargetPosition(motor.getMotorName(), getMotorTargetPosition(motor.getMotorName()) + 500);
+                    setPower(motor, percentMisaligned * myPower);
+                    setMotorTargetPosition(motor, getMotorTargetPosition(motor) + 500);
                 }
             }
             if (detector.getXPosition() - detector.getAlignCenter() > 0) {
                 telemetry.addData("Gold Position", "Right");
                 for (RuckusMotorName motor : tankMotors) {
-                    setPower(motor.getMotorName(), percentMisaligned * myPower);
-                    setMotorTargetPosition(motor.getMotorName(), getMotorTargetPosition(motor.getMotorName()) - 500);
+                    setPower(motor, percentMisaligned * myPower);
+                    setMotorTargetPosition(motor, getMotorTargetPosition(motor) - 500);
                 }
             }
             return this;
@@ -571,7 +572,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                 telemetry.addData("Gold", "Found");
                 if (angle < -15) {
                     rotator.stop();
-                    return new RotateRobotByGyro(-22, 0.6, left, false);
+                    return new RotateRobotByGyro(-18, 0.6, left, false);
                 } else if (angle >= -15 && angle <= 15) {
                     rotator.stop();
                     return new RotateRobotByGyro(0, 0.6, middle, false);
@@ -669,8 +670,8 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
         public void stop() {
             for (RuckusMotorName motor : tankMotors) {
-                setMotorTargetPosition(motor.getMotorName(), getMotorTargetPosition(motor.getMotorName()));
-                setPower(motor.getMotorName(), 0);
+                setMotorTargetPosition(motor, getMotorTargetPosition(motor));
+                setPower(motor, 0);
             }
         }
 
@@ -689,23 +690,27 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         public void start() {
             telemetry.addData("Status", "Rotator Started");
             for (RuckusMotorName name : tankMotors) {
-                setMotorType(name.getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
-                setPower(name.getMotorName(), myPower);
-                setMotorTargetPosition(name.getMotorName(), getMotorPosition(name.getMotorName()));
+                setMotorType(name, DcMotor.RunMode.RUN_TO_POSITION);
+                setPower(name, myPower);
+                setMotorTargetPosition(name, getMotorPosition(name));
             }
-            double angle = getAngle();
+            double actualAngle = getAngle();
             if (!incrementTarget) {
-                angle = (angle + 360) % 360;
-                myTarget = (myTarget + 720) % 360; //ensuring both angles are within 0-360
-                double d1 = angle - myTarget; // angle between robot and target within the 0-360 domain
-                myTarget = (Math.abs(d1) > 180 ? (d1 > 0 ? myTarget + 360 : myTarget - 360) : myTarget);
+               double domainOffset = (int)((actualAngle + 180)/360)*360;
+               double newTarget = myTarget + domainOffset;
+               if (Math.abs(newTarget - actualAngle)>180)
+               {
+                   newTarget = domainOffset - (360 - myTarget);
+               }
+               myTarget = newTarget;
+
             } else {
-                myTarget = angle + myTarget;
+                myTarget = actualAngle + myTarget;
             }
-            gyro.resetAngle(angle);
+            //gyro.resetAngle(angle);
             /* if d1 is > 180, that means that the shortest angle is in the opposite direction
             Which depends on whether angle > than mytarget (aka d1 > 0), and will increment mytarget by one 360 rotation so that the direction is then shorter
-
+x
 
             */
         }
@@ -713,30 +718,30 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         @Override
         public State update() {
 
-            telemetry.addData("current Position: ", getAngle());
-            telemetry.addData("Target Position:", myTarget);
+            //telemetry.addData("current Position: ", getAngle());
+            //telemetry.addData("Target Position:", myTarget);
 
 
             if (Math.abs(getAngle() - myTarget) < myTolerance) {
                 telemetry.addData("Status", "Rotator Finished");
                 for (RuckusMotorName motor : tankMotors) {
-                    setMotorTargetPosition(motor.getMotorName(), getMotorTargetPosition(motor.getMotorName()));
-                    setPower(motor.getMotorName(), 0);
+                    setMotorTargetPosition(motor, getMotorPosition(motor));
+                    setPower(motor, 0);
                 }
                 return next;
             }
             if (getAngle() - myTarget < 0) {
-                telemetry.addData("Direction", "Left");
+                //telemetry.addData("Direction", "Left");
                 for (RuckusMotorName motor : tankMotors) {
-                    setMotorTargetPosition(motor.getMotorName(), getMotorTargetPosition(motor.getMotorName()) - 20000);
-                    setPower(motor.getMotorName(), myPower);
+                    setMotorTargetPosition(motor, getMotorPosition(motor) - 20000);
+                    setPower(motor, myPower);
                 }
             }
             if (getAngle() - myTarget > 0) {
-                telemetry.addData("Direction", "Right");
+                //telemetry.addData("Direction", "Right");
                 for (RuckusMotorName motor : tankMotors) {
-                    setPower(motor.getMotorName(), myPower);
-                    setMotorTargetPosition(motor.getMotorName(), getMotorTargetPosition(motor.getMotorName()) + 20000);
+                    setPower(motor, myPower);
+                    setMotorTargetPosition(motor, getMotorPosition(motor) + 20000);
                 }
             }
             return this;
@@ -756,9 +761,9 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         {
             for (RuckusMotorName motorName : RuckusRobotHardware.tankMotors)
             {
-                setPower(motorName.getMotorName(),myPower);
-                setMotorType(motorName.getMotorName(), DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                setMotorType(motorName.getMotorName(), DcMotor.RunMode.RUN_USING_ENCODER);
+                setPower(motorName,myPower);
+                setMotorType(motorName, DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                setMotorType(motorName, DcMotor.RunMode.RUN_USING_ENCODER);
             }
         }
 
@@ -783,10 +788,10 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             }
 
             /*try {
-                State motorBL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), target, power, true, State.END);
-                State motorBR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), target, power, true, State.END);
-                State motorFL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), target, power, true, State.END);
-                State motorFR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), target, power, true, State.END);
+                State motorBL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_LEFT, target, power, true, State.END);
+                State motorBR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_RIGHT, target, power, true, State.END);
+                State motorFL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_LEFT, target, power, true, State.END);
+                State motorFR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_RIGHT, target, power, true, State.END);
                 ArrayList<State> states = new ArrayList<>();
                 states.add(motorBL);
                 states.add(motorBR);
@@ -805,21 +810,21 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             telemetry.addData("Status", "Group starting");
             //group.start();
             for (RuckusMotorName name : tankMotors) {
-                setMotorType(name.getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
-                setPower(name.getMotorName(), myPower);
+                setMotorType(name, DcMotor.RunMode.RUN_TO_POSITION);
+                setPower(name, myPower);
             }
-            setMotorTargetPosition(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), -myTarget + getMotorPosition(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName()));
-            setMotorTargetPosition(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), myTarget + getMotorPosition(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName()));
-            setMotorTargetPosition(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), -myTarget + getMotorPosition(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName()));
-            setMotorTargetPosition(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), myTarget + getMotorPosition(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName()));
+            setMotorTargetPosition(RuckusMotorName.DRIVE_BACK_LEFT, -myTarget + getMotorPosition(RuckusMotorName.DRIVE_BACK_LEFT));
+            setMotorTargetPosition(RuckusMotorName.DRIVE_BACK_RIGHT, myTarget + getMotorPosition(RuckusMotorName.DRIVE_BACK_RIGHT));
+            setMotorTargetPosition(RuckusMotorName.DRIVE_FRONT_LEFT, -myTarget + getMotorPosition(RuckusMotorName.DRIVE_FRONT_LEFT));
+            setMotorTargetPosition(RuckusMotorName.DRIVE_FRONT_RIGHT, myTarget + getMotorPosition(RuckusMotorName.DRIVE_FRONT_RIGHT));
 
         }
 
         public State update() {
             boolean allAligned = true;
             for (RuckusMotorName name : tankMotors) {
-                setPower(name.getMotorName(), myPower);
-                allAligned = allAligned && (Math.abs(getMotorPosition(name.getMotorName()) - getMotorTargetPosition(name.getMotorName())) < myTolerance);
+                setPower(name, myPower);
+                allAligned = allAligned && (Math.abs(getMotorPosition(name) - getMotorTargetPosition(name)) < myTolerance);
             }
             if (allAligned) {
                 return next;
@@ -841,10 +846,10 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
             if (type == PidType.TYPE_DEFAULT) {
 
-                State motorBL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), target, power, true, State.END);
-                State motorBR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), target, power, true, State.END);
-                State motorFL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), target, power, true, State.END);
-                State motorFR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), target, power, true, State.END);
+                State motorBL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_LEFT, target, power, true, State.END);
+                State motorBR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_BACK_RIGHT, target, power, true, State.END);
+                State motorFL = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_LEFT, target, power, true, State.END);
+                State motorFR = new RunMotorToEncoderDefaultPid(RuckusMotorName.DRIVE_FRONT_RIGHT, target, power, true, State.END);
                 ArrayList<State> states = new ArrayList<>();
                 states.add(motorBL);
                 states.add(motorBR);
@@ -1269,13 +1274,13 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
         @Override
         public void start() {
-            startTicks = getMotorPosition(motor.getMotorName());
+            startTicks = getMotorPosition(motor);
             setHingePower(hingePower);
         }
 
         @Override
         public StateMachine.State update() {
-            double ticksGone = getMotorPosition(motor.getMotorName()) - startTicks;
+            double ticksGone = getMotorPosition(motor) - startTicks;
             telemetry.addData("Ticks Moved", ticksGone);
             telemetry.addData("Total Ticks:", ticks);
             if (ticksGone > ticks) {

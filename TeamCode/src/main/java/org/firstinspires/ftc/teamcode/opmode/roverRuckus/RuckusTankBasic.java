@@ -32,7 +32,7 @@ public class RuckusTankBasic extends RuckusRobotHardware {
         }
         for (RuckusMotorName name : RuckusRobotHardware.tankMotors)
         {
-            telemetry.addData(name.getName() + " Position", getMotorPosition(name.getMotorName()));
+            telemetry.addData(name.getName() + " Position", getMotorPosition(name));
         }
         super.loop();
         if (gamepad1.x && !xPressed)

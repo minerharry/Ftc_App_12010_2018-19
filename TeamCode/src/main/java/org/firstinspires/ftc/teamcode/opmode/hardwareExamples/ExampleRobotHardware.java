@@ -32,8 +32,7 @@ public abstract class ExampleRobotHardware extends RobotHardware {
         private MotorName myMotorName;
         ExampleMotorName(String name) {
             myName = name;
-            myMotorName = new RobotHardware.MotorName(name);
-        }
+       }
         String getName()
         {
             return myName;

@@ -30,20 +30,20 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         super.init();
         for(RuckusMotorName name : linearSlideMotor)
         {
-            setMotorType(name.getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
-            setPower(name.getMotorName(),1.0);
+            setMotorType(name, DcMotor.RunMode.RUN_TO_POSITION);
+            setPower(name,1.0);
         }
         for(RuckusMotorName name : armMotor)
         {
-            setPower(name.getMotorName(),1.0);
-            setMotorType(name.getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
+            setPower(name,1.0);
+            setMotorType(name, DcMotor.RunMode.RUN_TO_POSITION);
         }
-        setMotorType(RuckusMotorName.MAIN_ARM.getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
+        setMotorType(RuckusMotorName.MAIN_ARM, DcMotor.RunMode.RUN_TO_POSITION);
         setArmPower(1);
-        armTargetPosition = getMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName());
-        setMotorType(linearSlideMotor[0].getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
-        setPower(linearSlideMotor[0].getMotorName(),1.0);
-        targetPosition = getMotorTargetPosition(linearSlideMotor[0].getMotorName());
+        armTargetPosition = getMotorTargetPosition(RuckusMotorName.MAIN_ARM);
+        setMotorType(linearSlideMotor[0], DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(linearSlideMotor[0],1.0);
+        targetPosition = getMotorTargetPosition(linearSlideMotor[0]);
     }
 
     @Override
@@ -60,10 +60,10 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         telemetry.addData("Target Position Shift",shift);
         targetPosition += (int)shift;
         targetPosition = (targetPosition < liftMin? liftMin: (targetPosition > liftMax? liftMax: targetPosition));
-        setMotorTargetPosition(linearSlideMotor[0].getMotorName(),targetPosition);
+        setMotorTargetPosition(linearSlideMotor[0],targetPosition);
         telemetry.addData("New Target",targetPosition);
-        telemetry.addData("Motor Position",getMotorPosition(linearSlideMotor[0].getMotorName()));
-        telemetry.addData("Motor Target Position",getMotorTargetPosition(linearSlideMotor[0].getMotorName()));
+        telemetry.addData("Motor Position",getMotorPosition(linearSlideMotor[0]));
+        telemetry.addData("Motor Target Position",getMotorTargetPosition(linearSlideMotor[0]));
 
     }
 }

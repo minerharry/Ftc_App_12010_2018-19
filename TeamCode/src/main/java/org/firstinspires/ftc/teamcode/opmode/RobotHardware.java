@@ -45,18 +45,10 @@ public abstract class RobotHardware extends OpMode {
         return hardwareMap.appContext.getResources().getString(id);
     }
 
-    public static class MotorName {
-        private String myName;
+    public static interface MotorName {
 
 
-        public MotorName(String name) {
-            myName = name;
-
-        }
-
-        public String getName() {
-            return myName;
-        }
+        public String getName();
 
 
     }

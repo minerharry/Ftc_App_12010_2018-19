@@ -18,7 +18,6 @@ public abstract class RelicRobotHardware extends RobotHardware {
         private MotorName myMotorName;
         RelicMotorName(String name) {
             myName = name;
-            myMotorName = new RobotHardware.MotorName(name);
         }
         String getName()
         {

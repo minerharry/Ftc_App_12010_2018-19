@@ -17,9 +17,9 @@ public class RuckusTankLiftSlide extends RuckusTankBasic {
             name.activate();
         }
         super.init();
-        setMotorType(linearSlideMotor[0].getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
-        setPower(linearSlideMotor[0].getMotorName(),1.0);
-        targetPosition = getMotorTargetPosition(linearSlideMotor[0].getMotorName());
+        setMotorType(linearSlideMotor[0], DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(linearSlideMotor[0],1.0);
+        targetPosition = getMotorTargetPosition(linearSlideMotor[0]);
     }
     public void loop()
     {
@@ -31,10 +31,10 @@ super.loop();
         telemetry.addData("Target Position Shift",shift);
         targetPosition += (int)shift;
         targetPosition = (targetPosition < minEncoder? minEncoder : (targetPosition > maxEncoder ? maxEncoder : targetPosition));
-        setMotorTargetPosition(linearSlideMotor[0].getMotorName(),targetPosition);
+        setMotorTargetPosition(linearSlideMotor[0],targetPosition);
         telemetry.addData("New Target",targetPosition);
-        telemetry.addData("Motor Position",getMotorPosition(linearSlideMotor[0].getMotorName()));
-        telemetry.addData("Motor Target Position",getMotorTargetPosition(linearSlideMotor[0].getMotorName()));
+        telemetry.addData("Motor Position",getMotorPosition(linearSlideMotor[0]));
+        telemetry.addData("Motor Target Position",getMotorTargetPosition(linearSlideMotor[0]));
     }
 
 }
