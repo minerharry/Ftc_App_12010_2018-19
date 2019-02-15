@@ -24,10 +24,16 @@ import java.util.Map;
  */
 public abstract class RobotHardware extends OpMode {
 
+
     private static double countsPerMotorRev;
     private static double driveGearReduction;     // This is < 1.0 if geared UP
     private static double wheelDiameterInches;     // For figuring circumference
     private static double countsPerInch;
+
+    protected enum StartingColor {
+        BLUE,
+        RED,
+    }
 
     // Get constant from resource file.
     protected int getResourceInt(int id) {
@@ -53,17 +59,9 @@ public abstract class RobotHardware extends OpMode {
 
     }
 
-    public static class GyroName {
-        private String myName;
+    public static interface GyroName {
 
-        public GyroName(String name)
-        {
-            myName = name;
-        }
-        public String getName()
-        {
-            return myName;
-        }
+        public String getName();
     }
 
 

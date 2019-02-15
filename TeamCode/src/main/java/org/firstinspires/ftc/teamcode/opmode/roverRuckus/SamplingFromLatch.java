@@ -7,7 +7,7 @@ public class SamplingFromLatch extends RuckusStateMachineAuto {
 
     public void init()
     {
-        actionNumber = 1;
+        route = AutonomousRoute.Sample_From_Lander;
         super.init();
     }
 

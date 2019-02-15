@@ -39,7 +39,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         WINCH_MAIN(R.string.winchMotorMain),
         WINCH_ARM(R.string.winchMotorArm),
         MAIN_ARM(R.string.armMotorMain),
-        CLIMB_SLIDE(R.string.linearSlide),
+        CLIMB_SLIDE( R.string.linearSlide),
         MOTOR_INTAKE(R.string.motorIntake);
 
         private int myNameID; //The R.id for the motorName
@@ -193,13 +193,13 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     }
 
-    public enum RuckusGyroName
+    public enum RuckusGyroName implements GyroName
     {
         HUB_2_IMU(R.string.hub2Imu);
 
         private int myNameID;
         private String myName;
-        private GyroName myGyroName;
+
         private boolean isActivated = false;
         private BNO055IMU.Parameters myParameters;
         RuckusGyroName(int nameID)
@@ -208,7 +208,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         }
         public void initRobot(HardwareMap map) {
             myName = map.appContext.getResources().getString(myNameID);
-            myGyroName = new GyroName(myName);
+
         }
         public boolean getActivated()
         {
@@ -222,11 +222,12 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         public void setParameters(BNO055IMU.Parameters parameters)
         {
             if (!(myParameters == parameters)) {
-                instance.initGyroParameters(myGyroName, parameters);
+                instance.initGyroParameters(this, parameters);
             }
             myParameters = parameters;
         }
-        String getName()
+        @Override
+        public String getName()
         {
             if(myName == null)
             {
@@ -235,15 +236,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             return myName;
 
         }
-        GyroName getGyroName()
-        {
-            if(myName == null)
-            {
-                throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
-            }
-            return myGyroName;
 
-        }
         public static void initRobotGyros(HardwareMap map)
         {
             for(RuckusGyroName name : RuckusGyroName.values())
@@ -261,7 +254,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         private int myNameID;
         private double myMin;
         private double myMax;
-        private double myPos = 0.5;
+        private double myPos = 0.6;
         private String myName;
         private ServoName myServoName;
         private boolean isActivated = false;
@@ -305,8 +298,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         }
         protected double verifyAngle(double angle)
         {
-            angle = Math.max(angle,myMin);
-            angle = Math.min(angle,myMax);
+            angle = (angle > myMax? myMax : (angle < myMin ? myMin : angle));
             return angle;
         }
 
@@ -381,7 +373,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         for(RuckusRobotHardware.RuckusGyroName name : RuckusRobotHardware.RuckusGyroName.values())
         {
             if (name.getActivated())
-                names.add(name.getGyroName());
+                names.add(name);
         }
         telemetry.addData("GetGyros name:", names);
         return names;
@@ -544,8 +536,12 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected void slideArm(float power)
     {
-        setAngle(RuckusServoName.SCOOP.getServoName(),RuckusServoName.SCOOP.incrementPos(power*0.05));
-        telemetry.addData("Arm slid", "Current Pos: " + RuckusServoName.SCOOP.getPos());
+        telemetry.addData("Input Power", power);
+        slidePos += power*0.004;
+        slidePos = (slidePos > slideMax ? slideMax : (slidePos < slideMin ? slideMin : slidePos));
+        setAngle(RuckusServoName.ARM_SLIDE.getServoName(),slidePos);
+        telemetry.addData("Slide Pos",slidePos);
+
 
     }
     protected void incrementArmTargetPosition(int increment)
@@ -608,7 +604,9 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private static double winchMainRaisePower = 1, winchArmRaisePower = 1, winchMainLowerPower = -1, winchArmLowerPower = -0.7;
 
     private static double scoopMin = 0.2, scoopMax = 0.8;
-    private static double slideMin = 0.55, slideMax = 0.85;
+    private static double slideMin = 0.5, slideMax = 1;
+
+    private double slidePos = 1;
 
     //The max and min encoder ticks of the lifter slide
     protected static int liftMax = 26200;

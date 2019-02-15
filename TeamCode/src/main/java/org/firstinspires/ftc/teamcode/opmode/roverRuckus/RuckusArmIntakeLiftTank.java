@@ -43,14 +43,17 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         armTargetPosition = getMotorTargetPosition(RuckusMotorName.MAIN_ARM);
         setMotorType(linearSlideMotor[0], DcMotor.RunMode.RUN_TO_POSITION);
         setPower(linearSlideMotor[0],1.0);
-        targetPosition = getMotorTargetPosition(linearSlideMotor[0]);
+        targetPosition = getMotorPosition(linearSlideMotor[0]);
+        targetPosition = (targetPosition < liftMin? liftMin: (targetPosition > liftMax? liftMax: targetPosition));
+
     }
 
     @Override
     public void loop()
     {
 
-        slideArm((gamepad2.left_bumper?0.8f:0)+(gamepad2.right_bumper?-0.8f:0));
+        float bumperPower = (gamepad2.left_bumper?0.8f:0)+(gamepad2.right_bumper?-0.8f:0);
+        slideArm(bumperPower);
         super.loop();
         incrementArmTargetPosition((int)((gamepad2.left_trigger-gamepad2.right_trigger)*armMultiplier));
         setIntakeMotorPower(gamepad2.left_stick_y);
@@ -65,5 +68,9 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         telemetry.addData("Motor Position",getMotorPosition(linearSlideMotor[0]));
         telemetry.addData("Motor Target Position",getMotorTargetPosition(linearSlideMotor[0]));
 
+    }
+    public void stop()
+    {
+        setMotorTargetPosition(linearSlideMotor[0],0);
     }
 }
