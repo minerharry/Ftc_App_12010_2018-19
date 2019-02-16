@@ -49,7 +49,6 @@ public class HoughSilverExample extends OpMode
         telemetry.addData("Status", "DogeCV 2018.0 - Gold SilverDetector Example");
 
         detector = new HoughSilverDetector();
-        detector.allCircles = true;
         detector.downscale = 1; //Increase detector sensitivity with smaller size. Make sure to preserve aspect ratio.
         detector.useFixedDownscale = false;
         detector.sensitivity = 1.3; //Play with this based on your camera

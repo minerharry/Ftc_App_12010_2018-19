@@ -59,45 +59,46 @@ center mineral distance: 2000
 public class RuckusStateMachineAuto extends RuckusRobotHardware {
     /**** DISTANCES ****/
     /** See image for lengths **/
-private double leftAngle = -29;
-private double rightAngle = 34;
-private int a;
-private int b1 = 2310;
-private int b2 = 2305;
-private int b3 = 2310;
-private int c1 ;
-private int c2;
-private int c3;
-private int d1;
-private int d2;
-private int d3;
-private int e;
-private int f1;
-private int f2;
-private int f3;
-private int g;
-private int h1;
-private int h2;
-private int h3;
-private int i;
-private int j;
+    private double leftAngle = -27;
+    private double rightAngle = 31;
+    private int a;
+    private int b1 = 2650;
+    private int b2 = 2605;
+    private int b3 = 2650;
+    private int c1 = 975;
+    private int c2 = 0;
+    private int c3 = 0;
+    private int d1;
+    private int d2;
+    private int d3;
+    private int e;
+    private int f1;
+    private int f2;
+    private int f3;
+    private int g;
+    private int h1;
+    private int h2;
+    private int h3;
+    private int i;
+    private int j;
+    private int arm_outtake_position;
 
 
     protected String RobotRotationGyroName = "Z angle Robot Rotation Gyro";
     protected String RobotGoldDetectorName = "Gold Detector";
-    private static final int LIFT_ALIGN_HEIGHT = 20000;
     private static final int TIME_WAIT_AFTER_INIT = 3;//time in seconds; mainly implemented to ensure DogeCV
     StateMachine myMachine = new StateMachine();
     boolean started = false;
     State startingState;
     Map<String, BackgroundState> backgroundStates;
     protected StartingColor color;
-    protected AutonomousRoute route;
+    protected AutonomousRoute route = AutonomousRoute.Custom_Test_Route;
     private double initTime;
 
 
 
     protected enum AutonomousRoute{
+        Custom_Test_Route(-2),
         Sample_From_Lander(-1),
         Sample_From_Line(0),
         Depot_Route_Drop(1),
@@ -130,10 +131,11 @@ private int j;
         //new RotateRobotByGyro(-90,0.4,State.END,true);
         //State movementstate = new DriveRobotByEncoders(500,0.4,new DisplayStringForDuration( 20,"BLAH",State.END));
         //State movementstate = new RotateRobotByGyro(-10, 0.4, new DriveRobotByEncoders(87, 0.4, new RotateRobotByGyro(-90, 0.4, new DriveRobotByEncoders(231, 0.4, State.END), false)), true);
-       // State detectionState =
-         //               new ScanUntilGoldAligned(0, new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2500,0.5,State.END)), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
+        // State detectionState =
+        //               new ScanUntilGoldAligned(0, new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2500,0.5,State.END)), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
 
-       State detectionState =
+
+        State detectionState =
                 new ScanUntilGoldAligned(0,
                         (new DriveRobotByEncoders(2310,0.5,
                                 new RotateRobotByGyro(0,0.4,
@@ -144,6 +146,11 @@ private int j;
                                         true, new DriveRobotByEncoders(0,0.5,State.END)))));
         switch (route.getId())
         {
+            case(-2): {
+                startingState = new RotateRobotByGyro(80,0.4,true,
+                        new RotateRobotByGyro(0,0.4,false,State.END));
+                break;
+            }
             case(0): {
                 startingState = detectionState;
                 break;
@@ -157,27 +164,30 @@ private int j;
             case(2): {
                 State leftState =
                         new DriveRobotByEncoders(b1,0.5,
-                                new RotateRobotByGyro(45,0.4,
+
+                                new RotateRobotByGyro(-45,0.4,
                                         false, new DriveRobotByEncoders(c1,0.5,
-                                                new RotateRobotByGyro(135, 0.4,
-                                                        false, new DriveRobotByEncoders(-d1,0.5,
-                                                                new OuttakeMarker(
-                                                                        new DriveRobotByEncoders(e,0.5,State.END)
-                                                                ))))));
+                                        new RotateRobotByGyro(-135, 0.4,
+                                                false, new DriveRobotByEncoders(-d1,0.5,
+                                                new OuttakeMarker(
+                                                        new DriveRobotByEncoders(e,0.5,State.END)
+                                                ))))));
                 State middleState =
                         new DriveRobotByEncoders(b2,0.5,
-                                new RotateRobotByGyro(45,0.4,false,
+
+                                new RotateRobotByGyro(-45,0.4,false,
                                         new DriveRobotByEncoders(c2,0.5,
-                                                new RotateRobotByGyro(135, 0.4,false,
+                                                new RotateRobotByGyro(-135, 0.4,false,
                                                         new DriveRobotByEncoders(-d2,0.5,
                                                                 new OuttakeMarker(
                                                                         new DriveRobotByEncoders(e,0.5,State.END)
                                                                 ))))));
                 State rightState =
                         new DriveRobotByEncoders(b3,0.5,
-                                new RotateRobotByGyro(45,0.4,false,
+
+                                new RotateRobotByGyro(-45,0.4,false,
                                         new DriveRobotByEncoders(c3,0.5,
-                                                new RotateRobotByGyro(135, 0.4,false,
+                                                new RotateRobotByGyro(-135, 0.4,false,
                                                         new DriveRobotByEncoders(-d3,0.5,
                                                                 new OuttakeMarker(
                                                                         new DriveRobotByEncoders(e,0.5,State.END)
@@ -351,9 +361,54 @@ private int j;
     }
 
     private class OuttakeMarker extends LinearState {
+        private State myState;
         public OuttakeMarker(State nextState)
         {
             super(nextState);
+            /*myState =
+                    new RunMotorToEncoderDefaultPid(RuckusMotorName.MAIN_ARM,arm_outtake_position,1.0,false,
+                            new ExtendArmToPosition(arm_outtake_extension, false,
+                                    new RunMotorForTime(1.0,2,
+                                            new ExtendArmToPosition(0.1, false, next))));*/        }
+        public void start()
+        {
+
+        }
+        public State update()
+        {
+            return myState;
+        }
+    }
+
+
+    private class ExtendArmToPosition extends LinearState {
+        double myTarget;
+        boolean incrementPosition;
+        public ExtendArmToPosition(double target, boolean increment, State nextState)
+        {
+            super(nextState);
+            RuckusServoName.ARM_SLIDE.activate();
+            myTarget = target;
+            incrementPosition = increment;
+        }
+        public void start(){}
+        public State update(){return next;}
+    }
+
+    private class UnlatchFromLander extends LinearState {
+        private double myPower;
+        private int forwardOffset;
+        private State myState;
+        public UnlatchFromLander(double liftPower, int offset, int liftHeight, State nextState)
+        {
+            super(nextState);
+            myPower = liftPower;
+            forwardOffset = offset;
+            myState =
+                    new DriveLiftToEncoder(myPower,liftHeight,false,
+                            new RotateRobotByGyro(270,0.4,true,
+                                    new RotateRobotByGyro(0,0.4,false,
+                                            new DriveRobotByEncoders(offset,0.5,next))));
         }
         public void start()
         {
@@ -361,7 +416,7 @@ private int j;
         }
         public State update()
         {
-            return next;
+            return myState;
         }
     }
     private class DriveLiftToEncoder extends LinearState {
@@ -473,8 +528,7 @@ private int j;
 
             detector.ratioScorer.weight = 5;
             detector.ratioScorer.perfectRatio = 1.0;
-            detector.verticalMax = maxY;
-            detector.verticalMin = minY;
+            detector.setVerticalCrop(maxY,minY);
             detector.enable();
         }
 
@@ -836,6 +890,10 @@ private int j;
             gyro = ((UpdateGyroAngle) backgroundStates.get(gyroBackgroundName));
         }
 
+        private double sigmoid(double x)
+        {
+            return 1 / (1 + (Math.exp(-x)));
+        }
         @Override
         public void start() {
             telemetry.addData("Status", "Rotator Started");
@@ -846,13 +904,13 @@ private int j;
             }
             double actualAngle = getAngle();
             if (!incrementTarget) {
-               double domainOffset = (int)((actualAngle + 180)/360)*360;
-               double newTarget = myTarget + domainOffset;
-               if (Math.abs(newTarget - actualAngle)>180)
-               {
-                   newTarget = domainOffset - (360 - myTarget);
-               }
-               myTarget = newTarget;
+                double domainOffset = (int)((actualAngle + 180)/360)*360;
+                double newTarget = myTarget + domainOffset;
+                if (Math.abs(newTarget - actualAngle)>180)
+                {
+                    newTarget = domainOffset - (360 - myTarget);
+                }
+                myTarget = newTarget;
 
             } else {
                 myTarget = actualAngle + myTarget;
@@ -885,7 +943,7 @@ x
             }
             else
                 myAlignFrames = 0;
-            double scaledPower = myPower * (Math.abs(myTarget - getAngle()) > 20? 1 : 0.4 + ((Math.abs(myTarget-getAngle())/20))*(3/5));
+            double scaledPower = myPower * (Math.abs(myTarget - getAngle()) > 80? 1 : 0.4 + ((sigmoid(myTarget-getAngle())))*(3/5));
             if (getAngle() - myTarget < 0) {
                 //telemetry.addData("Direction", "Left");
                 for (RuckusMotorName motor : tankMotors) {

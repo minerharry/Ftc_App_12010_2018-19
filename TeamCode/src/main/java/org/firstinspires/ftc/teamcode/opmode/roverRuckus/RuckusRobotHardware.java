@@ -31,6 +31,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected static RuckusRobotHardware instance;
 
+
     public enum RuckusMotorName implements MotorName{
         DRIVE_FRONT_LEFT (R.string.frontLeft),
         DRIVE_FRONT_RIGHT (R.string.frontRight),
@@ -396,6 +397,11 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     public void init() {
         initXML();
         super.init();
+        if (RuckusMotorName.CLIMB_SLIDE.getActivated())
+        {
+            liftTargetPosition = getMotorPosition(linearSlideMotor[0]);
+            liftTargetPosition = (liftTargetPosition < liftMin? liftMin: (liftTargetPosition > liftMax? liftMax: liftTargetPosition));
+        }
         for (RuckusServoName name : RuckusServoName.values())
         {
             if (name.isActivated)
@@ -497,13 +503,19 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected void slideLiftSlide(int ticks)
     {
-        int targetPosition = getMotorTargetPosition(RuckusMotorName.CLIMB_SLIDE);
-        targetPosition += ticks;
-        targetPosition = (targetPosition < liftMin? liftMin : (targetPosition > liftMax ? liftMax : targetPosition));
-        setMotorTargetPosition(RuckusMotorName.CLIMB_SLIDE,targetPosition);
+        liftTargetPosition += ticks;
+        liftTargetPosition = (liftTargetPosition < liftMin? liftMin: (liftTargetPosition > liftMax? liftMax: liftTargetPosition));
+        setMotorTargetPosition(linearSlideMotor[0],liftTargetPosition);
 
     }
 
+    protected void setLiftSlidePosition(int ticks)
+    {
+        liftTargetPosition = ticks;
+        liftTargetPosition = (liftTargetPosition < liftMin? liftMin: (liftTargetPosition > liftMax? liftMax: liftTargetPosition));
+        setMotorTargetPosition(linearSlideMotor[0],liftTargetPosition);
+
+    }
 
     /** various position enums for autonomi **/
 
@@ -579,6 +591,14 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         enableMotorMaintainPosition(RuckusMotorName.MAIN_ARM,ARM_PID_CONSANTS);
         telemetry.addData("Status", "Pid Initialized");
     }
+    protected void raiseLiftToLatchingHeight()
+    {
+        setLiftSlidePosition(LIFT_ALIGN_HEIGHT);
+    }
+    protected void lowerLift()
+    {
+        setLiftSlidePosition(0);
+    }
 
     @Override
     public void loop()
@@ -610,7 +630,8 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     //The max and min encoder ticks of the lifter slide
     protected static int liftMax = 26200;
-    protected static int liftMin = 20;
+    protected static int liftMin = 8;
+    protected int liftTargetPosition = 0;
 
     protected int armTargetPosition;
     private static int armMinPosition = -20000;
@@ -618,4 +639,6 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     private static int armIncrementRatio = 50;
     private static final Pid.PIDConstants ARM_PID_CONSANTS = new Pid.MotorPIDConstants(0.01,0.1,0.7,-280,280);
+
+    protected static final int LIFT_ALIGN_HEIGHT = 20000;
 }

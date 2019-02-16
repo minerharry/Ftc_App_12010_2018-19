@@ -26,6 +26,8 @@ import java.util.List;
 
 /**
  * Created by Victo on 9/10/2018.
+ *
+ * Basic sampling order detector - users are encouraged to tune it to their own needs.
  */
 
 public class SamplingOrderDetector extends DogeCVDetector {
@@ -250,16 +252,10 @@ public class SamplingOrderDetector extends DogeCVDetector {
             isFound = false;
         }
 
-        if (isSideways)
-        {
-            Imgproc.putText(displayMat, "Gold Position: " + lastOrder.toString(), new Point(10, getAdjustedSize().width - 30), 0, 1, new Scalar(255, 255, 0), 1);
-            Imgproc.putText(displayMat, "Current Track: " + currentOrder.toString(), new Point(10, getAdjustedSize().width - 10), 0, 0.5, new Scalar(255, 255, 255), 1);
-        }
-        else {
-            //Display Debug Information
-            Imgproc.putText(displayMat, "Gold Position: " + lastOrder.toString(), new Point(10, getAdjustedSize().height - 30), 0, 1, new Scalar(255, 255, 0), 1);
-            Imgproc.putText(displayMat, "Current Track: " + currentOrder.toString(), new Point(10, getAdjustedSize().height - 10), 0, 0.5, new Scalar(255, 255, 255), 1);
-        }
+        //Display Debug Information
+        Imgproc.putText(displayMat,"Gold Position: " + lastOrder.toString(),new Point(10,getAdjustedSize().height - 30),0,1, new Scalar(255,255,0),1);
+        Imgproc.putText(displayMat,"Current Track: " + currentOrder.toString(),new Point(10,getAdjustedSize().height - 10),0,0.5, new Scalar(255,255,255),1);
+
         return displayMat;
     }
 

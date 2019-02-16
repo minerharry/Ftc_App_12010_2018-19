@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name="Ruckus Full Teleop")
 public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
-    private static final int speedMultiplier = 30;
+    private static final int speedMultiplier = 100;
     private static final int armMultiplier = 20;
     private static int targetPosition = 0;
     @Override
@@ -61,12 +61,18 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         double shift = speedMultiplier*inputPower;
         telemetry.addData("Input Power", inputPower);
         telemetry.addData("Target Position Shift",shift);
-        targetPosition += (int)shift;
-        targetPosition = (targetPosition < liftMin? liftMin: (targetPosition > liftMax? liftMax: targetPosition));
-        setMotorTargetPosition(linearSlideMotor[0],targetPosition);
+        slideLiftSlide((int)shift);
         telemetry.addData("New Target",targetPosition);
         telemetry.addData("Motor Position",getMotorPosition(linearSlideMotor[0]));
         telemetry.addData("Motor Target Position",getMotorTargetPosition(linearSlideMotor[0]));
+        if (gamepad1.left_bumper && !gamepad1.right_bumper)
+        {
+            raiseLiftToLatchingHeight();
+        }
+        if(gamepad1.right_bumper && !gamepad1.left_bumper)
+        {
+            lowerLift();
+        }
 
     }
     public void stop()
