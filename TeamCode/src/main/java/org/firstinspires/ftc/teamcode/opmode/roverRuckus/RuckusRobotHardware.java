@@ -624,9 +624,9 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private static double winchMainRaisePower = 1, winchArmRaisePower = 1, winchMainLowerPower = -1, winchArmLowerPower = -0.7;
 
     private static double scoopMin = 0.2, scoopMax = 0.8;
-    private static double slideMin = 0.5, slideMax = 1;
+    private static double slideMin = 0.5, slideMax = 1.2;
 
-    private double slidePos = 1;
+    private double slidePos = 10;
 
     //The max and min encoder ticks of the lifter slide
     protected static int liftMax = 26200;
@@ -640,5 +640,5 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private static int armIncrementRatio = 50;
     private static final Pid.PIDConstants ARM_PID_CONSANTS = new Pid.MotorPIDConstants(0.01,0.1,0.7,-280,280);
 
-    protected static final int LIFT_ALIGN_HEIGHT = 20000;
+    protected static final int LIFT_ALIGN_HEIGHT = 19000;
 }

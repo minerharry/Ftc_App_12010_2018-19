@@ -12,18 +12,18 @@ public class IntakeTester extends OpMode {
     @Override
     public void init()
     {
-        intake_left = hardwareMap.get(CRServo.class, "Intake_Left");
-        intake_right = hardwareMap.get(CRServo.class, "Intake_Right");
+        intake_left = hardwareMap.get(CRServo.class, "Servo_Intake_Left");
+        //intake_right = hardwareMap.get(CRServo.class, "Intake_Right");
     }
 
     @Override
     public void loop()
     {
-        telemetry.addData("Right Stick:", gamepad1.right_stick_y);
+        //telemetry.addData("Right Stick:", gamepad1.right_stick_y);
         telemetry.addData("Left Stick:", gamepad1.left_stick_y);
         intake_left.setPower(gamepad1.left_stick_y*-0.8);
-        intake_right.setPower(gamepad1.right_stick_y*-0.8);
-        telemetry.addData("Right Power:", intake_right.getPower());
+        //intake_right.setPower(gamepad1.right_stick_y*-0.8);
+        //telemetry.addData("Right Power:", intake_right.getPower());
         telemetry.addData("Left Power:", intake_left.getPower());
     }
 }
