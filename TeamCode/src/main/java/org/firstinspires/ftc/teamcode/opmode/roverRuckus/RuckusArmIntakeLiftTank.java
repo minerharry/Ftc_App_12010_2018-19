@@ -8,6 +8,7 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
     private static final int speedMultiplier = 100;
     private static final int armMultiplier = 20;
     private static int targetPosition = 0;
+    private static double armDeadZone = 0.05;
     @Override
     public void init()
     {
@@ -35,11 +36,11 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         }
         for(RuckusMotorName name : armMotor)
         {
-            setPower(name,1.0);
-            setMotorType(name, DcMotor.RunMode.RUN_TO_POSITION);
+            //setPower(name,1.0);
+            setMotorType(name, DcMotor.RunMode.RUN_USING_ENCODER);
         }
         setMotorType(RuckusMotorName.MAIN_ARM, DcMotor.RunMode.RUN_TO_POSITION);
-        setArmPower(1);
+        //setArmPower(1);
         armTargetPosition = getMotorTargetPosition(RuckusMotorName.MAIN_ARM);
         setMotorType(linearSlideMotor[0], DcMotor.RunMode.RUN_TO_POSITION);
         setPower(linearSlideMotor[0],1.0);
@@ -55,7 +56,13 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         float bumperPower = (gamepad2.left_bumper?0.8f:0)+(gamepad2.right_bumper?-0.8f:0);
         slideArm(bumperPower);
         super.loop();
-        incrementArmTargetPosition((int)((gamepad2.left_trigger-gamepad2.right_trigger)*armMultiplier));
+        double armInputPower = gamepad2.left_trigger-gamepad2.right_trigger;
+        if (Math.abs(armInputPower) < armDeadZone)
+        {
+
+        }
+        setArmPower(gamepad2.left_trigger-gamepad2.right_trigger);
+        //incrementArmTargetPosition((int)((gamepad2.left_trigger-gamepad2.right_trigger)*armMultiplier));
         setIntakeMotorPower(gamepad2.left_stick_y);
         double inputPower = (gamepad1.left_trigger - gamepad1.right_trigger);
         double shift = speedMultiplier*inputPower;
