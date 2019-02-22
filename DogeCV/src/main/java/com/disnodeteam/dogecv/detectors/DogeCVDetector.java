@@ -32,6 +32,8 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
 
     public Point cropTLCorner = null; //The top left corner of the image used for processing
     public Point cropBRCorner = null; //The bottom right corner of the image used for processing
+    public double verticalMax;
+    public double verticalMin;
 
     public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.BALANCED;
     public double downscale = 0.5;
@@ -41,9 +43,24 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
 
     public void setVerticalCrop(double uppperPercent,double lowerPercent)
     {
-        double height = getAdjustedSize().height;
-        double upperBound = uppperPercent*height;
-        double lowerBound = (1-lowerPercent)*height;
+        verticalMax = uppperPercent;
+        verticalMin = lowerPercent;
+        /*
+        try {
+            if (getAdjustedSize() == null) {
+                throw new NullPointerException("Error: Tried to set DogeCV vertical cropping before size initialized");
+            }
+            double height = getAdjustedSize().height;
+            double upperBound = uppperPercent * height;
+            double lowerBound = (1 - lowerPercent) * height;
+            cropTLCorner = new Point(0, upperBound);
+            cropBRCorner = new Point(getAdjustedSize().width, lowerBound);
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }*/
     }
     public DogeCVDetector(){
 
@@ -85,6 +102,7 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
             return rgba;
         }
         Imgproc.resize(workingMat, workingMat,adjustedSize); // Downscale
+
         workingMat = MathFTC.crop(workingMat, cropTLCorner, cropBRCorner);
 
         Imgproc.resize(process(workingMat),workingMat,getInitSize()); // Process and scale back to original size for viewing

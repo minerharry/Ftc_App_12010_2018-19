@@ -65,6 +65,7 @@ public class GoldAlignExample extends OpMode
         detector.ratioScorer.perfectRatio = 1.0;
 
         detector.enable();
+        detector.setVerticalCrop(0.1,0.1);
 
 
     }
