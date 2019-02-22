@@ -7,7 +7,7 @@ public class SamplingFromLine extends RuckusStateMachineAuto {
 
     public void init()
     {
-        actionNumber = 0;
+        route = AutonomousRoute.Sample_From_Line;
         super.init();
     }
 

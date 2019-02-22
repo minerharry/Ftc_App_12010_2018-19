@@ -28,9 +28,9 @@ public class RuckusTankArmIntakeHinge extends RuckusTankBasic {
         }
         setIntakeType(true);
 
-        setMotorType(linearSlideMotor[0].getMotorName(), DcMotor.RunMode.RUN_TO_POSITION);
-        setPower(linearSlideMotor[0].getMotorName(),1.0);
-        targetPosition = getMotorTargetPosition(linearSlideMotor[0].getMotorName());
+        setMotorType(linearSlideMotor[0], DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(linearSlideMotor[0],1.0);
+        targetPosition = getMotorTargetPosition(linearSlideMotor[0]);
     }
 
     @Override
@@ -45,10 +45,10 @@ public class RuckusTankArmIntakeHinge extends RuckusTankBasic {
         telemetry.addData("Target Position Shift",shift);
         targetPosition += (int)shift;
         targetPosition = (targetPosition < liftMin? liftMin : (targetPosition > liftMax ? liftMax : targetPosition));
-        setMotorTargetPosition(linearSlideMotor[0].getMotorName(),targetPosition);
+        setMotorTargetPosition(linearSlideMotor[0],targetPosition);
         telemetry.addData("New Target",targetPosition);
-        telemetry.addData("Motor Position",getMotorPosition(linearSlideMotor[0].getMotorName()));
-        telemetry.addData("Motor Target Position",getMotorTargetPosition(linearSlideMotor[0].getMotorName()));
+        telemetry.addData("Motor Position",getMotorPosition(linearSlideMotor[0]));
+        telemetry.addData("Motor Target Position",getMotorTargetPosition(linearSlideMotor[0]));
         setIntakePower(gamepad1.left_stick_y);
         incrementScoop(gamepad2.right_stick_y);
         slideArm((gamepad2.left_bumper ? 1 : 0) + (gamepad2.right_bumper ? -1 : 0));

@@ -2,6 +2,7 @@ package com.disnodeteam.dogecv.detectors;
 
 import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.OpenCVPipeline;
+import com.disnodeteam.dogecv.math.MathFTC;
 import com.disnodeteam.dogecv.scoring.DogeCVScorer;
 
 import org.opencv.core.Mat;
@@ -13,9 +14,6 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.opencv.core.Core.flip;
-import static org.opencv.core.Core.transpose;
 
 /**
  * Created by Victo on 9/10/2018.
@@ -31,9 +29,11 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
     private Size adjustedSize;
     private Mat workingMat = new Mat();
     public double maxDifference = 10;
-    public boolean isSideways = false; //added by Harrison Truscott; makes image function in landscape mode
-    public double verticalMax = 1.0;
-    public double verticalMin = 0.0; //these two added by Harrison Truscott; represent, in percentage (0.0-1.0), the amount of the image to be considered in scoring
+
+    public Point cropTLCorner = null; //The top left corner of the image used for processing
+    public Point cropBRCorner = null; //The bottom right corner of the image used for processing
+    public double verticalMax;
+    public double verticalMin;
 
     public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.BALANCED;
     public double downscale = 0.5;
@@ -41,6 +41,27 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
     public boolean useFixedDownscale = true;
     protected String detectorName = "DogeCV Detector";
 
+    public void setVerticalCrop(double uppperPercent,double lowerPercent)
+    {
+        verticalMax = uppperPercent;
+        verticalMin = lowerPercent;
+        /*
+        try {
+            if (getAdjustedSize() == null) {
+                throw new NullPointerException("Error: Tried to set DogeCV vertical cropping before size initialized");
+            }
+            double height = getAdjustedSize().height;
+            double upperBound = uppperPercent * height;
+            double lowerBound = (1 - lowerPercent) * height;
+            cropTLCorner = new Point(0, upperBound);
+            cropBRCorner = new Point(getAdjustedSize().width, lowerBound);
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }*/
+    }
     public DogeCVDetector(){
 
     }
@@ -82,22 +103,11 @@ public abstract class DogeCVDetector extends OpenCVPipeline{
         }
         Imgproc.resize(workingMat, workingMat,adjustedSize); // Downscale
 
-        //Added Code: Minerharry (12010) - adapt for sideways cameras, larger field of view.
+        workingMat = MathFTC.crop(workingMat, cropTLCorner, cropBRCorner);
 
-        if(isSideways)
-        {
-            transpose(workingMat,workingMat);
-            flip(workingMat,workingMat,1);
-        }
-        Mat tempMat = process(workingMat);
-        if(isSideways) {
-            transpose(tempMat, tempMat);
-            flip(tempMat,tempMat,0);
-            transpose(workingMat,workingMat);
-        }
-        Imgproc.resize(tempMat,workingMat,getInitSize()); // Process and scale back to original size for viewing
+        Imgproc.resize(process(workingMat),workingMat,getInitSize()); // Process and scale back to original size for viewing
         //Print Info
-        Imgproc.putText(workingMat,"DogeCV 2018.2 " + detectorName + ": " + getAdjustedSize().toString() + " - " + speed.toString() ,new Point(5,30),0,0.5,new Scalar(0,255,255),2);
+        Imgproc.putText(workingMat,"DogeCV 2019.1 " + detectorName + ": " + getAdjustedSize().toString() + " - " + speed.toString() ,new Point(5,30),0,0.5,new Scalar(0,255,255),2);
 
         return workingMat;
     }

@@ -8,7 +8,6 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import org.opencv.BuildConfig;
-import org.opencv.android.JavaCamera2View;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;

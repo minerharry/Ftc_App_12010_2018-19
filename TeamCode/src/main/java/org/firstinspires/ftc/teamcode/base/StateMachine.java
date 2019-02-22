@@ -60,6 +60,7 @@ public class StateMachine {
         }
         public static abstract class BackgroundState implements State{
         public abstract BackgroundState update();
+        public void inited(){};
         protected boolean stopped = false;
         public void stop()
         {

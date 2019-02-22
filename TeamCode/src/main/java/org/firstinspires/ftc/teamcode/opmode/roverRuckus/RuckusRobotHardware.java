@@ -31,7 +31,8 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected static RuckusRobotHardware instance;
 
-    public enum RuckusMotorName {
+
+    public enum RuckusMotorName implements MotorName{
         DRIVE_FRONT_LEFT (R.string.frontLeft),
         DRIVE_FRONT_RIGHT (R.string.frontRight),
         DRIVE_BACK_LEFT (R.string.backLeft),
@@ -39,12 +40,12 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         WINCH_MAIN(R.string.winchMotorMain),
         WINCH_ARM(R.string.winchMotorArm),
         MAIN_ARM(R.string.armMotorMain),
-        CLIMB_SLIDE(R.string.linearSlide),
+        CLIMB_SLIDE( R.string.linearSlide),
         MOTOR_INTAKE(R.string.motorIntake);
 
         private int myNameID; //The R.id for the motorName
         private String myName; //The name of the component; only defined after initRobot()
-        private MotorName myMotorName; //The MotorName that contains the name of the hardware piece
+        //private MotorName myMotorName; //The MotorName that contains the name of the hardware piece
         private boolean isActivated = false; //whether the hardware is activated and will be initialized
         private boolean modeMaintainPos = false; //whether the motor will attempt to maintain its position
         private Pid myMaintainPid = null; // the PID used to maintain the arm at a certain point
@@ -59,7 +60,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         public void initRobot(HardwareMap map)
         {
             myName = map.appContext.getResources().getString(myNameID);
-            myMotorName = new RobotHardware.MotorName(myName);
+           // myMotorName = new RobotHardware.MotorName(myName);
         }
         /**Specify that this motor is active and should be initialized from the hardwareMap to be used
         during runtime*/
@@ -120,7 +121,8 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             return isActivated;
         }
         /**Returns the string name associated with this motor's MotorName*/
-        String getName()
+
+        public String getName()
         {
             if(myName == null)
             {
@@ -129,7 +131,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             return myName;
         }
         /**Returns the motorName associated with this motor; called to interface with RobotHardware methods*/
-        MotorName getMotorName()
+        /*MotorName getMotorName()
         {
             if(myMotorName == null)
             {
@@ -137,7 +139,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             }
 
             return myMotorName;
-        }
+        }*/
 
     }
     public enum RuckusCRServoName
@@ -192,13 +194,14 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     }
 
-    public enum RuckusGyroName
+    public enum RuckusGyroName implements GyroName
     {
         HUB_2_IMU(R.string.hub2Imu);
 
+        private boolean parametersSet= false;
         private int myNameID;
         private String myName;
-        private GyroName myGyroName;
+
         private boolean isActivated = false;
         private BNO055IMU.Parameters myParameters;
         RuckusGyroName(int nameID)
@@ -207,7 +210,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         }
         public void initRobot(HardwareMap map) {
             myName = map.appContext.getResources().getString(myNameID);
-            myGyroName = new GyroName(myName);
+
         }
         public boolean getActivated()
         {
@@ -221,11 +224,17 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         public void setParameters(BNO055IMU.Parameters parameters)
         {
             if (!(myParameters == parameters)) {
-                instance.initGyroParameters(myGyroName, parameters);
+                instance.initGyroParameters(this, parameters);
             }
             myParameters = parameters;
+            parametersSet = true;
         }
-        String getName()
+        public boolean getParametersSet()
+        {
+            return parametersSet;
+        }
+        @Override
+        public String getName()
         {
             if(myName == null)
             {
@@ -234,15 +243,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
             return myName;
 
         }
-        GyroName getGyroName()
-        {
-            if(myName == null)
-            {
-                throw new NullPointerException("Error: " +this.getDeclaringClass().toString() + " Exception - Name not initialized from XML, make sure initRobot[Object]s() method was called during init()");
-            }
-            return myGyroName;
 
-        }
         public static void initRobotGyros(HardwareMap map)
         {
             for(RuckusGyroName name : RuckusGyroName.values())
@@ -260,7 +261,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         private int myNameID;
         private double myMin;
         private double myMax;
-        private double myPos = 0.5;
+        private double myPos = 0.6;
         private String myName;
         private ServoName myServoName;
         private boolean isActivated = false;
@@ -304,8 +305,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         }
         protected double verifyAngle(double angle)
         {
-            angle = Math.max(angle,myMin);
-            angle = Math.min(angle,myMax);
+            angle = (angle > myMax? myMax : (angle < myMin ? myMin : angle));
             return angle;
         }
 
@@ -347,7 +347,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         for(RuckusRobotHardware.RuckusMotorName name : RuckusRobotHardware.RuckusMotorName.values())
         {
             if (name.getActivated())
-            names.add(name.getMotorName());
+            names.add(name);
         }
         return names;
     }
@@ -380,7 +380,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         for(RuckusRobotHardware.RuckusGyroName name : RuckusRobotHardware.RuckusGyroName.values())
         {
             if (name.getActivated())
-                names.add(name.getGyroName());
+                names.add(name);
         }
         telemetry.addData("GetGyros name:", names);
         return names;
@@ -403,6 +403,11 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     public void init() {
         initXML();
         super.init();
+        if (RuckusMotorName.CLIMB_SLIDE.getActivated())
+        {
+            liftTargetPosition = getMotorPosition(linearSlideMotor[0]);
+            liftTargetPosition = (liftTargetPosition < liftMin? liftMin: (liftTargetPosition > liftMax? liftMax: liftTargetPosition));
+        }
         for (RuckusServoName name : RuckusServoName.values())
         {
             if (name.isActivated)
@@ -417,17 +422,17 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     {
         double left = Range.clip(y-x,-1.0,1.0);
         double right = Range.clip(-x-y,-1.0,1.0);
-        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
-        setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
-        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
-        setPower(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), right);
+        setPower(RuckusMotorName.DRIVE_BACK_LEFT, left);
+        setPower(RuckusMotorName.DRIVE_FRONT_LEFT, left);
+        setPower(RuckusMotorName.DRIVE_BACK_RIGHT, right);
+        setPower(RuckusMotorName.DRIVE_FRONT_RIGHT, right);
     }
     protected void setDriveForTank(float left, float right)
     {
-        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
-        setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
-        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
-        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
+        setPower(RuckusMotorName.DRIVE_BACK_LEFT, left);
+        setPower(RuckusMotorName.DRIVE_FRONT_LEFT, left);
+        setPower(RuckusMotorName.DRIVE_BACK_RIGHT, right);
+        setPower(RuckusMotorName.DRIVE_BACK_RIGHT, right);
     }
 
     protected void setDriveForTankForTurn(float left, float right,float turnLimiter)
@@ -436,10 +441,10 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         double percentLimiter = 1 - ((1-turnLimiter)/2 * percentDiff);
         left *= percentLimiter;
         right *= percentLimiter;
-        setPower(RuckusMotorName.DRIVE_BACK_LEFT.getMotorName(), left);
-        setPower(RuckusMotorName.DRIVE_FRONT_LEFT.getMotorName(), left);
-        setPower(RuckusMotorName.DRIVE_BACK_RIGHT.getMotorName(), right);
-        setPower(RuckusMotorName.DRIVE_FRONT_RIGHT.getMotorName(), right);
+        setPower(RuckusMotorName.DRIVE_BACK_LEFT, left);
+        setPower(RuckusMotorName.DRIVE_FRONT_LEFT, left);
+        setPower(RuckusMotorName.DRIVE_BACK_RIGHT, right);
+        setPower(RuckusMotorName.DRIVE_FRONT_RIGHT, right);
     }
 
     protected void setIntakeState(boolean state)
@@ -475,25 +480,25 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected void setIntakeMotorPower(float power)
     {
-        setPower(RuckusMotorName.MOTOR_INTAKE.getMotorName(),power);
+        setPower(RuckusMotorName.MOTOR_INTAKE,power);
     }
 
     protected void setArmPower(float power)
     {
-        setPower(RuckusMotorName.MAIN_ARM.getMotorName(),power);
+        setPower(RuckusMotorName.MAIN_ARM,power);
     }
 
     protected void setHingePower(float power)
     {
         if (power < 0)
         {
-            setPower(RuckusMotorName.WINCH_MAIN.getMotorName(), -power * winchMainRaisePower);
-            setPower(RuckusMotorName.WINCH_ARM.getMotorName(), -power * winchArmRaisePower);
+            setPower(RuckusMotorName.WINCH_MAIN, -power * winchMainRaisePower);
+            setPower(RuckusMotorName.WINCH_ARM, -power * winchArmRaisePower);
         }
         else
         {
-            setPower(RuckusMotorName.WINCH_MAIN.getMotorName(), power * winchMainLowerPower);
-            setPower(RuckusMotorName.WINCH_ARM.getMotorName(), power * winchArmLowerPower);
+            setPower(RuckusMotorName.WINCH_MAIN, power * winchMainLowerPower);
+            setPower(RuckusMotorName.WINCH_ARM, power * winchArmLowerPower);
         }
     }
 
@@ -504,13 +509,19 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected void slideLiftSlide(int ticks)
     {
-        int targetPosition = getMotorTargetPosition(RuckusMotorName.CLIMB_SLIDE.getMotorName());
-        targetPosition += ticks;
-        targetPosition = (targetPosition < liftMin? liftMin : (targetPosition > liftMax ? liftMax : targetPosition));
-        setMotorTargetPosition(RuckusMotorName.CLIMB_SLIDE.getMotorName(),targetPosition);
+        liftTargetPosition += ticks;
+        liftTargetPosition = (liftTargetPosition < liftMin? liftMin: (liftTargetPosition > liftMax? liftMax: liftTargetPosition));
+        setMotorTargetPosition(linearSlideMotor[0],liftTargetPosition);
 
     }
 
+    protected void setLiftSlidePosition(int ticks)
+    {
+        liftTargetPosition = ticks;
+        liftTargetPosition = (liftTargetPosition < liftMin? liftMin: (liftTargetPosition > liftMax? liftMax: liftTargetPosition));
+        setMotorTargetPosition(linearSlideMotor[0],liftTargetPosition);
+
+    }
 
     /** various position enums for autonomi **/
 
@@ -543,24 +554,28 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     protected void slideArm(float power)
     {
-        setAngle(RuckusServoName.SCOOP.getServoName(),RuckusServoName.SCOOP.incrementPos(power*0.05));
-        telemetry.addData("Arm slid", "Current Pos: " + RuckusServoName.SCOOP.getPos());
+        telemetry.addData("Input Power", power);
+        slidePos += power*0.004;
+        slidePos = (slidePos > slideMax ? slideMax : (slidePos < slideMin ? slideMin : slidePos));
+        setAngle(RuckusServoName.ARM_SLIDE.getServoName(),slidePos);
+        telemetry.addData("Slide Pos",slidePos);
+
 
     }
     protected void incrementArmTargetPosition(int increment)
     {
         armTargetPosition += increment;
         armTargetPosition = (armTargetPosition < armMinPosition ? armMinPosition : (armTargetPosition > armMaxPosition ? armMaxPosition : armTargetPosition));
-        setMotorTargetPosition(RuckusMotorName.MAIN_ARM.getMotorName(),armTargetPosition);
+        setMotorTargetPosition(RuckusMotorName.MAIN_ARM,armTargetPosition);
     }
     protected void incrementArmTargetPositionWithEncoder(float power)
     {
-        super.incrementMotorToPosition(RuckusMotorName.MAIN_ARM.getMotorName(),Math.round( armIncrementRatio*power));
+        super.incrementMotorToPosition(RuckusMotorName.MAIN_ARM,Math.round( armIncrementRatio*power));
     }
     protected void enableMotorMaintainPosition(RuckusMotorName motorName, Pid.PIDConstants constants)
     {
         motorName.activateMaintainPosition(constants,time);
-        setMotorType(motorName.getMotorName(),DcMotor.RunMode.RUN_USING_ENCODER);
+        setMotorType(motorName,DcMotor.RunMode.RUN_USING_ENCODER);
     }
     protected void disableMotorMaintainPosition(RuckusMotorName motorName)
     {
@@ -568,9 +583,9 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     }
     protected void updateMotorMaintainPosition(RuckusMotorName motor)
     {
-        double power = (motor.updateMaintainPid(getMotorPosition(motor.getMotorName()),time));
+        double power = (motor.updateMaintainPid(getMotorPosition(motor),time));
         telemetry.addData("Motor " + motor.getName() + " Pid Updated:", power);
-        setPower(motor.getMotorName(),power);
+        setPower(motor,power);
 
     }
     protected void setMotorMaintainPosition(RuckusMotorName motor, int newTargetPosition)
@@ -581,6 +596,14 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     {
         enableMotorMaintainPosition(RuckusMotorName.MAIN_ARM,ARM_PID_CONSANTS);
         telemetry.addData("Status", "Pid Initialized");
+    }
+    protected void raiseLiftToLatchingHeight()
+    {
+        setLiftSlidePosition(LIFT_ALIGN_HEIGHT);
+    }
+    protected void lowerLift()
+    {
+        setLiftSlidePosition(0);
     }
 
     @Override
@@ -607,11 +630,14 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private static double winchMainRaisePower = 1, winchArmRaisePower = 1, winchMainLowerPower = -1, winchArmLowerPower = -0.7;
 
     private static double scoopMin = 0.2, scoopMax = 0.8;
-    private static double slideMin = 0.55, slideMax = 0.85;
+    private static double slideMin = 0.5, slideMax = 1;
+
+    private double slidePos = 10;
 
     //The max and min encoder ticks of the lifter slide
-    protected static int liftMax = 26200;
-    protected static int liftMin = 20;
+    protected static int liftMax = 25200;
+    protected static int liftMin = 15;
+    protected int liftTargetPosition = 0;
 
     protected int armTargetPosition;
     private static int armMinPosition = -20000;
@@ -619,4 +645,6 @@ public abstract class RuckusRobotHardware extends RobotHardware {
 
     private static int armIncrementRatio = 50;
     private static final Pid.PIDConstants ARM_PID_CONSANTS = new Pid.MotorPIDConstants(0.01,0.1,0.7,-280,280);
+
+    protected static final int LIFT_ALIGN_HEIGHT = 19000;
 }
