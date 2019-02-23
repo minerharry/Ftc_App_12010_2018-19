@@ -4,11 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.opmode.roverRuckus.RuckusStateMachineAuto;
 
-@Autonomous(name="Crater Drop Simple")
-public class Simple_Drop_From_Crater_Auto extends RuckusStateMachineAuto {
+@Autonomous(name="Depot Marker Line Auto")
+public class Depot_Marker_Line_Auto extends RuckusStateMachineAuto {
     public void init()
     {
-        route = AutonomousRoute.Crater_Simple_Route_Drop;
+        route = AutonomousRoute.Depot_Route_Line;
         super.init();
     }
 }

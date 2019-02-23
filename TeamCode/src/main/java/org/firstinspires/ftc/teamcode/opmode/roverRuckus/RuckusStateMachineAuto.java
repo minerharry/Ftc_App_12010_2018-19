@@ -135,14 +135,6 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         for (RuckusMotorName motorName : tankMotors) {
             motorName.activate();
         }
-        //startingState = new ScanUntilGoldAligned(0, new PointTowardsGold(0.1,10, State.END),new PointTowardsGold(0.1,10, State.END),new PointTowardsGold(0.1,10, State.END));
-        //startingState = new DriveRobotByEncoders(500,0.2,State.END);
-        //new RotateRobotByGyro(-90,0.4,State.END,true);
-        //State movementstate = new DriveRobotByEncoders(500,0.4,new DisplayStringForDuration( 20,"BLAH",State.END));
-        //State movementstate = new RotateRobotByGyro(-10, 0.4, new DriveRobotByEncoders(87, 0.4, new RotateRobotByGyro(-90, 0.4, new DriveRobotByEncoders(231, 0.4, State.END), false)), true);
-        // State detectionState =
-        //               new ScanUntilGoldAligned(0, new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2500,0.5,State.END)), new PointTowardsGold(0.1, 0, 10, new DriveRobotByEncoders(2200,0.5,new RotateRobotByGyro(-80,0.4,new DriveRobotByEncoders(500,0.5,State.END),true))));
-
 
 
         State detectionState =
@@ -160,24 +152,46 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                 startingState = new UnlatchFromLander(0.9,200,LIFT_UNLATCH_HEIGHT,State.END);
             }
             case(-2): {
-                startingState = new UnlatchFromLander(1.0,sampling_offset,LIFT_UNLATCH_HEIGHT,State.END);/*//new RotateRobotByGyro(45,0.5,false,State.END);
-                new DriveLiftToEncoder(1.0,LIFT_UNLATCH_HEIGHT,false,
-                        new DriveRobotByEncoders(unlatch_backoff_1,0.6,
-                                new RotateRobotByGyro(45,0.4,false,
-                                        new DriveRobotByEncoders(angle_forward,0.6,
-                                                new RotateRobotByGyro(0,0.4, false, 4,1,
-                                                        new DriveRobotByEncoders(-120,0.5,State.END))))));*/
+                startingState = new UnlatchFromLander(1.0,sampling_offset,LIFT_UNLATCH_HEIGHT,State.END);
+
 
                 break;
             }
             case(-1): {
                 startingState = new RotateRobotByGyro(45,0.5,false,State.END);
-                        /*new DriveLiftToEncoder(0.7,LIFT_UNLATCH_HEIGHT,false,
-                                new RotateRobotByGyro(0,0.4, false, detectionState));*/
+
                 break;
             }
             case(0): {
                 startingState = detectionState;
+                break;
+            }
+            case(1): {
+                State leftState =
+                        new DriveRobotByEncoders(b1+c1,0.6,
+                                new RotateRobotByGyro(135,0.4,false,
+                                        new OuttakeMarker(
+                                                new DriveRobotByEncoders(e,0.9,State.END)
+                                        )));
+                State middleState =
+                        new DriveRobotByEncoders(b2+c2,0.6,
+                                new RotateRobotByGyro(135,0.4,false,
+                                        new DriveRobotByEncoders(d2,0.6,
+                                                new OuttakeMarker(
+                                                        new DriveRobotByEncoders(e,0.9,State.END)
+                                                ))));
+                State rightState =
+                        new DriveRobotByEncoders(b3,0.5,
+                                new RotateRobotByGyro(0,0.4,false,
+                                        new DriveRobotByEncoders(c3,0.5,
+                                                new RotateRobotByGyro(90,0.4,false,
+                                                        new DriveRobotByEncoders(d3,0.6,
+                                                                new RotateRobotByGyro(135,0.4,false,
+                                                                        new OuttakeMarker(
+                                                                                new DriveRobotByEncoders(e,0.9,State.END)
+                                                                        )))))));
+
+                startingState = new UnlatchFromLander(1.0,sampling_offset,LIFT_UNLATCH_HEIGHT,new ScanUntilGoldAligned(0,leftState,middleState,rightState));
                 break;
             }
             case(2): {
@@ -204,8 +218,8 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                                                                         new OuttakeMarker(
                                                                                 new DriveRobotByEncoders(e,0.9,State.END)
                                                                         )))))));
-                startingState = new ScanUntilGoldAligned()
-               // startingState = new ScanUntilGoldAligned(0,leftState,middleState,rightState);
+
+               startingState = new ScanUntilGoldAligned(0,leftState,middleState,rightState);
                 break;
             }
             case (3): {
@@ -240,6 +254,40 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                 startingState = new ScanUntilGoldAligned(0,leftState,middleState,rightState);
                 break;
             }
+            case (5): {
+                State leftState =
+                        new DriveRobotByEncoders(b1,0.5,
+                                new RotateRobotByGyro(180,0.4,false,
+                                        new DriveRobotByEncoders(g,0.5,
+                                                new RotateRobotByGyro(90,0.4, false,
+                                                        new DriveRobotByEncoders(h1,0.5,
+                                                                new RotateRobotByGyro(135,0.4,false,
+                                                                        new DriveRobotByEncoders(i,0.5,
+                                                                                new RotateRobotByGyro(-45,0.4,false,
+                                                                                        new OuttakeMarker(new DriveRobotByEncoders(j,0.5,State.END))))))))));
+                State middleState =
+                        new DriveRobotByEncoders(b2,0.5,
+                                new RotateRobotByGyro(180,0.4,false,
+                                        new DriveRobotByEncoders(g,0.5,
+                                                new RotateRobotByGyro(90,0.4, false,
+                                                        new DriveRobotByEncoders(h2,0.5,
+                                                                new RotateRobotByGyro(135,0.4,false,
+                                                                        new DriveRobotByEncoders(i,0.5,
+                                                                                new RotateRobotByGyro(-45,0.4,false,
+                                                                                        new OuttakeMarker(new DriveRobotByEncoders(j,0.5,State.END))))))))));
+                State rightState =
+                        new DriveRobotByEncoders(b3,0.5,
+                                new RotateRobotByGyro(180,0.4,false,
+                                        new DriveRobotByEncoders(g,0.5,
+                                                new RotateRobotByGyro(90,0.4, false,
+                                                        new DriveRobotByEncoders(h3,0.5,
+                                                                new RotateRobotByGyro(135,0.4,false,
+                                                                        new DriveRobotByEncoders(i,0.5,
+                                                                                new RotateRobotByGyro(-45,0.4,false,
+                                                                                        new OuttakeMarker(new DriveRobotByEncoders(j,0.5,State.END))))))))));
+                startingState = new UnlatchFromLander(1.0,sampling_offset,LIFT_UNLATCH_HEIGHT,new ScanUntilGoldAligned(0,leftState,middleState,rightState));
+                break;
+            }
             case (6): {
                 State leftState =
                         new DriveRobotByEncoders(b1,0.5,
@@ -272,6 +320,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
                                                                                 new RotateRobotByGyro(-45,0.4,false,
                                                                                         new OuttakeMarker(new DriveRobotByEncoders(j,0.5,State.END))))))))));
                 startingState = new ScanUntilGoldAligned(0,leftState,middleState,rightState);
+                break;
             }
             case (7):{
                 State leftState = new DriveRobotByEncoders(b1,0.7,
@@ -310,39 +359,10 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         }
 
 
-       /* double turnExtent = 45;
-        RotateRobotByGyro rotator3 = new RotateRobotByGyro(-turnExtent, 0.6, State.END, true);
-            RotateRobotByGyro rotator2 = new RotateRobotByGyro(turnExtent*2, 0.6, rotator3, true);
-            startingState = new RotateRobotByGyro(-turnExtent, 0.6, rotator2,true);
-        */
 
         super.init();
         myMachine = new StateMachine();
-        //startingState = new DisplayStringForDuration(20,"HELLO",State.END);
-        /*LinearStateTemplate templateA = new StringDurationTemplate(15, "Templated state a");
-        LinearStateTemplate templateB = new StringDurationTemplate(15, "Templated state B");
-        ArrayList<LinearStateTemplate> templates = new ArrayList<>();
-        templates.add(templateA);
-        templates.add(templateB);
-        State last = new DisplayStringForDuration(7, "End", State.END);*/
-        /*LinearStateTemplate[] templates = {
-                        new StringDurationTemplate(20, "1st State"),
-                        new StringDurationTemplate(20, "2nd State"),
-                        new StringDurationTemplate(20, "3rd State"),
-                        new StringDurationTemplate(20, "4th State"),
-                new StringDurationTemplate(20, "5th State")};
-        startingState = assembleTemplates(templates,State.END).get(0);
-        /*
-        By the way: State.END is a blank state defined in the class definition of State
-        When the statemachine sees that the current state is State.END, the machine is considered 'done'
-         */
-        /*
-        State state5 = new DisplayStringForDuration(20, "5th State", State.END);
-        State state4 = new DisplayStringForDuration(20, "4th State", state5);
-        State state3 = new DisplayStringForDuration(20, "3rd State", state5);
-        State state2 = new DisplayStringForDuration(20, "2nd State", state5);
-        State state1 = new DisplayStringForDuration(20, "1st State", state5);
-        startingState = state1;*/
+
         for (RuckusMotorName motorName : RuckusRobotHardware.tankMotors) {
             setMotorType(motorName, DcMotor.RunMode.RUN_TO_POSITION);
         }
