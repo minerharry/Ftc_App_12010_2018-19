@@ -10,6 +10,7 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
     private static int targetPosition = 0;
     private static double armDeadZone = 0.05;
     private boolean deadZoned = false;
+    private boolean encoderOverride = false;
 
     @Override
     public void init()
@@ -41,6 +42,7 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
             //setPower(name,1.0);
             setMotorType(name, DcMotor.RunMode.RUN_USING_ENCODER);
         }
+
         setMotorType(RuckusMotorName.MAIN_ARM, DcMotor.RunMode.RUN_TO_POSITION);
         //setArmPower(1);
         armTargetPosition = getMotorTargetPosition(RuckusMotorName.MAIN_ARM);
@@ -54,7 +56,14 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
     @Override
     public void loop()
     {
-
+        if(gamepad1.dpad_left)
+        {
+            encoderOverride = true;
+        }
+        if(gamepad1.dpad_right)
+        {
+            encoderOverride = false;
+        }
         float bumperPower = (gamepad2.left_bumper?0.8f:0)+(gamepad2.right_bumper?-0.8f:0);
         if (Math.abs(bumperPower) >= 0.1)
         {
@@ -81,7 +90,7 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         double shift = speedMultiplier*inputPower;
         telemetry.addData("Input Power", inputPower);
         telemetry.addData("Target Position Shift",shift);
-        slideLiftSlide((int)shift);
+        slideLiftSlide((int)shift,encoderOverride);
         telemetry.addData("New Target",targetPosition);
         telemetry.addData("Motor Position",getMotorPosition(linearSlideMotor[0]));
         telemetry.addData("Motor Target Position",getMotorTargetPosition(linearSlideMotor[0]));

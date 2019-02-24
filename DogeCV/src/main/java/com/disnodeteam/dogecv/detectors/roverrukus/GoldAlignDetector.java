@@ -93,7 +93,7 @@ public class GoldAlignDetector extends DogeCVDetector {
             Imgproc.rectangle(displayMat, rect.tl(), rect.br(), new Scalar(0,0,255),2); // Draw rect
 
             // If the result is better then the previously tracked one, set this rect as the new best
-            if(score < bestDiffrence && ((rect.y > verticalMin*getAdjustedSize().height)&&(rect.y < (1-verticalMax)*getAdjustedSize().height))){
+            if(score < bestDiffrence && ((rect.y + rect.height/2 > verticalMin*getAdjustedSize().height)&&(rect.y +rect.height/2 < (1-verticalMax)*getAdjustedSize().height))){
                 bestDiffrence = score;
                 bestRect = rect;
             }

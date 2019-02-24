@@ -514,6 +514,13 @@ public abstract class RuckusRobotHardware extends RobotHardware {
         setMotorTargetPosition(linearSlideMotor[0],liftTargetPosition);
 
     }
+    protected void slideLiftSlide(int ticks,boolean override)
+    {
+        liftTargetPosition += ticks;
+        if (!override) {liftTargetPosition = (liftTargetPosition < liftMin? liftMin: (liftTargetPosition > liftMax? liftMax: liftTargetPosition));}
+        setMotorTargetPosition(linearSlideMotor[0],liftTargetPosition);
+
+    }
 
     protected void setLiftSlidePosition(int ticks)
     {
@@ -635,7 +642,7 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private double slidePos = 10;
 
     //The max and min encoder ticks of the lifter slide
-    protected static int liftMax = 25200;
+    protected static int liftMax = 25700;
     protected static int liftMin = 15;
     protected int liftTargetPosition = 0;
 
@@ -646,5 +653,5 @@ public abstract class RuckusRobotHardware extends RobotHardware {
     private static int armIncrementRatio = 50;
     private static final Pid.PIDConstants ARM_PID_CONSANTS = new Pid.MotorPIDConstants(0.01,0.1,0.7,-280,280);
 
-    protected static final int LIFT_ALIGN_HEIGHT = 19000;
+    protected static final int LIFT_ALIGN_HEIGHT = 23200;
 }

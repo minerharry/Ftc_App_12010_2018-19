@@ -74,9 +74,9 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
     private int d2;
     private int d3;
     private int e;
-    private int f1;
-    private int f2;
-    private int f3;
+    private int f1 = 300;
+    private int f2 = 300;
+    private int f3 = 300;
     private int g;
     private int h1;
     private int h2;
@@ -91,8 +91,8 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
 
     protected String RobotRotationGyroName = "Z angle Robot Rotation Gyro";
     protected String RobotGoldDetectorName = "Gold Detector";
-    private static final int LIFT_UNLATCH_HEIGHT = 19500;
-    private static final int TIME_WAIT_AFTER_INIT = 3;//time in seconds; mainly implemented to ensure DogeCV
+    private static final int LIFT_UNLATCH_HEIGHT = 23700;
+    private static final int TIME_WAIT_AFTER_INIT = 2;//time in seconds; mainly implemented to ensure DogeCV has time to enable
     StateMachine myMachine = new StateMachine();
     boolean started = false;
     State startingState;
@@ -439,14 +439,14 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
         if (backgroundStates.get(RobotRotationGyroName) == null) {
             backgroundStates.put(RobotRotationGyroName, new UpdateGyroAngle(RuckusGyroName.HUB_2_IMU, AxesOrder.ZYX));
         }
-        ((UpdateGyroAngle) backgroundStates.get(RobotRotationGyroName)).resetAngle();
+
         return RobotRotationGyroName;
     }
 
     public String ActivateRobotGoldDetector() {
         telemetry.addData("Detector status", "Background states");
         if (backgroundStates.get(RobotGoldDetectorName) == null) {
-            backgroundStates.put(RobotGoldDetectorName, new RunDogeCVGoldAlignDetector(0, 0.85));
+            backgroundStates.put(RobotGoldDetectorName, new RunDogeCVGoldAlignDetector(0.2,0));
         }
         return RobotGoldDetectorName;
     }
@@ -684,6 +684,7 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             detector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
             detector.downscale = 0.4; // How much to downscale the input frames
 
+
             detector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
             //detector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
             detector.maxAreaScorer.weight = 0.005;
@@ -691,10 +692,11 @@ public class RuckusStateMachineAuto extends RuckusRobotHardware {
             detector.ratioScorer.weight = 5;
             detector.ratioScorer.perfectRatio = 1.0;
             detector.enable();
+
+                detector.setVerticalCrop(upperY,lowerY);
         }
 
-        public void start() {
-            detector.setVerticalCrop(upperY,lowerY);
+        public void start(){
         }
 
         public BackgroundState update() {
