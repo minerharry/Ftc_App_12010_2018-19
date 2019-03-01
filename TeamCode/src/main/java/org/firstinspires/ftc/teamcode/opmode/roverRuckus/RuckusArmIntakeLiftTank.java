@@ -50,7 +50,6 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         setPower(linearSlideMotor[0],1.0);
         targetPosition = getMotorPosition(linearSlideMotor[0]);
         targetPosition = (targetPosition < liftMin? liftMin: (targetPosition > liftMax? liftMax: targetPosition));
-        setMotorTargetPosition(linearSlideMotor[0],targetPosition);
     }
 
     @Override
