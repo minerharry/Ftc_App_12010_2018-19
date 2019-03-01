@@ -83,6 +83,7 @@ public abstract class RobotHardware extends OpMode {
         } else {
             g.initialize(parameters);
         }
+        waitForStartTelemetry();
     }
 
 
@@ -422,7 +423,12 @@ public abstract class RobotHardware extends OpMode {
 
     }
 
-    public void loop() {}
+    public void loop() {
+        if (!isStarted)
+        {
+            isStarted = true;
+        }
+    }
 
     /**
      * End of match, stop all actuators.
@@ -469,6 +475,19 @@ public abstract class RobotHardware extends OpMode {
         }
         return null;
     }
+    public synchronized void waitForStartTelemetry() {
+        while (!isStarted) {
+            synchronized (this) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                telemetry.addData("Wait Status","Waiting for start");
+            }
+        }
+    }
     // All motors on the robot, in order of MotorName.
     private Map<MotorName,DcMotor> allMotors;
     // All motors on the robot, in order of MotorName.
@@ -479,6 +498,10 @@ public abstract class RobotHardware extends OpMode {
     private Map<CRServoName, CRServo> allCRServos;
     // All color sensors on the robot, in order of ColorSensorName.
     private Map<ColorSensorName,ColorSensor> allColorSensors;
+
+
+    //whether the opMode has started
+    private boolean isStarted = false;
 
 
 
