@@ -46,10 +46,12 @@ public class RuckusArmIntakeLiftTank extends RuckusTankBasic {
         setMotorType(RuckusMotorName.MAIN_ARM, DcMotor.RunMode.RUN_TO_POSITION);
         //setArmPower(1);
         armTargetPosition = getMotorTargetPosition(RuckusMotorName.MAIN_ARM);
+        targetPosition = getMotorTargetPosition(RuckusMotorName.CLIMB_SLIDE);
         setMotorType(linearSlideMotor[0], DcMotor.RunMode.RUN_TO_POSITION);
         setPower(linearSlideMotor[0],1.0);
         targetPosition = getMotorPosition(linearSlideMotor[0]);
         targetPosition = (targetPosition < liftMin? liftMin: (targetPosition > liftMax? liftMax: targetPosition));
+        setMotorTargetPosition(RuckusMotorName.CLIMB_SLIDE,targetPosition);
     }
 
     @Override
