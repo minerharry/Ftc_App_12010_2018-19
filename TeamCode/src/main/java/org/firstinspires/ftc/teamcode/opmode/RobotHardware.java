@@ -83,7 +83,6 @@ public abstract class RobotHardware extends OpMode {
         } else {
             g.initialize(parameters);
         }
-        waitForStartTelemetry();
     }
 
 
@@ -393,6 +392,7 @@ public abstract class RobotHardware extends OpMode {
             }
 
         }
+        waitForStartTelemetry();
 
 
       /*  raiseJewelArm();
